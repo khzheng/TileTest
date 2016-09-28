@@ -10,4 +10,6 @@
 
 @interface GameScene : SKScene
 
+- (CGPoint)tileCoordinateForPosition:(CGPoint)position;
+
 @end
