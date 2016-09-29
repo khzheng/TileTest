@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EB1477A91D9CB0DA0056DBD1 /* Unit.m in Sources */ = {isa = PBXBuildFile; fileRef = EB1477A81D9CB0DA0056DBD1 /* Unit.m */; };
 		EB8FA6071D989BF200F35211 /* MyTileSet.sks in Resources */ = {isa = PBXBuildFile; fileRef = EB8FA6061D989BF200F35211 /* MyTileSet.sks */; };
 		EBBBB1681D921D0E007BC0F7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EBBBB1671D921D0E007BC0F7 /* main.m */; };
 		EBBBB16B1D921D0E007BC0F7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = EBBBB16A1D921D0E007BC0F7 /* AppDelegate.m */; };
@@ -19,6 +20,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		EB1477A71D9CB0DA0056DBD1 /* Unit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Unit.h; sourceTree = "<group>"; };
+		EB1477A81D9CB0DA0056DBD1 /* Unit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Unit.m; sourceTree = "<group>"; };
 		EB8FA6061D989BF200F35211 /* MyTileSet.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = MyTileSet.sks; sourceTree = "<group>"; };
 		EBBBB1631D921D0E007BC0F7 /* TileTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TileTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EBBBB1671D921D0E007BC0F7 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -78,6 +81,8 @@
 				EBBBB17C1D921D0E007BC0F7 /* Info.plist */,
 				EBBBB1661D921D0E007BC0F7 /* Supporting Files */,
 				EB8FA6061D989BF200F35211 /* MyTileSet.sks */,
+				EB1477A71D9CB0DA0056DBD1 /* Unit.h */,
+				EB1477A81D9CB0DA0056DBD1 /* Unit.m */,
 			);
 			path = TileTest;
 			sourceTree = "<group>";
@@ -162,6 +167,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EB1477A91D9CB0DA0056DBD1 /* Unit.m in Sources */,
 				EBBBB1731D921D0E007BC0F7 /* GameViewController.m in Sources */,
 				EBBBB16B1D921D0E007BC0F7 /* AppDelegate.m in Sources */,
 				EBBBB16E1D921D0E007BC0F7 /* GameScene.m in Sources */,

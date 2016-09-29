@@ -7,12 +7,12 @@
 //
 
 #import "GameScene.h"
+#import "Unit.h"
 
 @interface GameScene()
 
 @property (nonatomic, strong) SKTileMapNode *landBackground;
 @property (nonatomic, strong) NSMutableArray *playerUnits;
-//@property (nonatomic, strong) SKSpriteNode *spaceship;
 
 @end
 
@@ -29,16 +29,11 @@
 
 - (void)loadSceneNodes {
     self.landBackground = (SKTileMapNode *)[self childNodeWithName:@"landBackground"];
-//    self.spaceship = [SKSpriteNode spriteNodeWithImageNamed:@"Spaceship"];
-//    self.spaceship.position = CGPointMake(640, 640);
-//    self.spaceship.size = [self tileSize];
-//    [self addChild:self.spaceship];
 }
 
 - (void)loadUnits {
-    SKSpriteNode *soldier = [SKSpriteNode spriteNodeWithImageNamed:@"Soldier"];
-    soldier.position = [self positionForTileCoordinate:CGPointMake(1, 1)];
-    [self addChild:soldier];
+    [self addChild:[Unit unitAtPosition:[self positionForTileCoordinate:CGPointMake(2, 2)]]];
+    [self addChild:[Unit unitAtPosition:[self positionForTileCoordinate:CGPointMake(3, 2)]]];
 }
 
 -(void)didMoveToView:(SKView *)view {
@@ -67,7 +62,9 @@
     
     CGPoint tileCoord = [self tileCoordinateForPosition:touchLocation];
     SKTileDefinition *tileDef = [self.landBackground tileDefinitionAtColumn:tileCoord.x row:tileCoord.y];
-    NSLog(@"userData: %@", tileDef.userData);
+    if (tileDef.userData) {
+        
+    }
     
 //    SKAction *moveAction = [SKAction moveTo:touchLocation duration:1.0];
 //    [self.spaceship runAction:moveAction];
