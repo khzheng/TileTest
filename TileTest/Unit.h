@@ -7,9 +7,11 @@
 //
 
 #import <SpriteKit/SpriteKit.h>
+#import "GameScene.h"
 
 @interface Unit : SKNode
 
+@property (nonatomic, weak) GameScene *gameScene;
 @property (nonatomic, strong) SKSpriteNode *sprite;
 @property (nonatomic, strong) SKLabelNode *hpLabel;
 @property (nonatomic, assign) NSInteger hp;
@@ -17,6 +19,9 @@
 @property (nonatomic, assign) BOOL isMoving;
 @property (nonatomic, assign) BOOL selectingMovement;
 
-+ (instancetype)unitAtPosition:(CGPoint)position;
++ (instancetype)nodeWithScene:(GameScene *)gameScene position:(CGPoint)position;
+
+- (void)selectUnit;
+- (void)deselectUnit;
 
 @end

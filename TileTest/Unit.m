@@ -10,7 +10,7 @@
 
 @implementation Unit
 
-+ (instancetype)unitAtPosition:(CGPoint)position {
++ (instancetype)nodeWithScene:(GameScene *)gameScene position:(CGPoint)position {
     Unit *unit = [[Unit alloc] init];
     unit.sprite = [SKSpriteNode spriteNodeWithImageNamed:@"Soldier"];
     unit.sprite.position = position;
@@ -23,12 +23,16 @@
     unit.hpLabel.position = CGPointMake(unit.sprite.frame.size.width - unit.hpLabel.frame.size.width - 8, -unit.hpLabel.frame.size.height - 8);
     [unit.sprite addChild:unit.hpLabel];
     
+    unit.gameScene = gameScene;
+    
     return unit;
 }
 
 - (instancetype)init {
     self = [super init];
     if (self) {
+        self.userInteractionEnabled = YES;
+        
         _hp = 10;
         _movementRange = 3;
         _isMoving = NO;
@@ -36,6 +40,28 @@
     }
     
     return self;
+}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [self.gameScene deselectUnit];
+    [self selectUnit];
+}
+
+- (void)selectUnit {
+    [self.gameScene selectUnit:self];
+    
+    // make unit slightly larger
+    self.sprite.xScale = 1.2;
+    self.sprite.yScale = 1.2;
+    
+    // paint tiles
+}
+
+- (void)deselectUnit {
+    self.sprite.xScale = 1;
+    self.sprite.yScale = 1;
+    
+    self.selectingMovement = NO;
 }
 
 @end

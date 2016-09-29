@@ -32,8 +32,11 @@
 }
 
 - (void)loadUnits {
-    [self addChild:[Unit unitAtPosition:[self positionForTileCoordinate:CGPointMake(2, 2)]]];
-    [self addChild:[Unit unitAtPosition:[self positionForTileCoordinate:CGPointMake(3, 2)]]];
+    Unit *unit1 = [Unit nodeWithScene:self position:[self positionForTileCoordinate:CGPointMake(2, 2)]];
+    Unit *unit2 = [Unit nodeWithScene:self position:[self positionForTileCoordinate:CGPointMake(3, 2)]];
+    
+    [self addChild:unit1];
+    [self addChild:unit2];
 }
 
 -(void)didMoveToView:(SKView *)view {
@@ -97,6 +100,16 @@
         line.position = CGPointMake(tileSize.width * x, 0);
         [self addChild:line];
     }
+}
+
+- (void)selectUnit:(Unit *)unit {
+    self.selectedUnit = unit;
+}
+
+- (void)deselectUnit {
+    if (self.selectedUnit)
+        [self.selectedUnit deselectUnit];
+    self.selectedUnit = nil;
 }
 
 - (CGPoint)tileCoordinateForPosition:(CGPoint)position {
