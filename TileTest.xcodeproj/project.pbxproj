@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		EB1477A91D9CB0DA0056DBD1 /* Unit.m in Sources */ = {isa = PBXBuildFile; fileRef = EB1477A81D9CB0DA0056DBD1 /* Unit.m */; };
+		EB1477AC1DA0792C0056DBD1 /* TileData.m in Sources */ = {isa = PBXBuildFile; fileRef = EB1477AB1DA0792C0056DBD1 /* TileData.m */; };
 		EB8FA6071D989BF200F35211 /* MyTileSet.sks in Resources */ = {isa = PBXBuildFile; fileRef = EB8FA6061D989BF200F35211 /* MyTileSet.sks */; };
 		EBBBB1681D921D0E007BC0F7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EBBBB1671D921D0E007BC0F7 /* main.m */; };
 		EBBBB16B1D921D0E007BC0F7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = EBBBB16A1D921D0E007BC0F7 /* AppDelegate.m */; };
@@ -22,6 +23,8 @@
 /* Begin PBXFileReference section */
 		EB1477A71D9CB0DA0056DBD1 /* Unit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Unit.h; sourceTree = "<group>"; };
 		EB1477A81D9CB0DA0056DBD1 /* Unit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Unit.m; sourceTree = "<group>"; };
+		EB1477AA1DA0792C0056DBD1 /* TileData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TileData.h; sourceTree = "<group>"; };
+		EB1477AB1DA0792C0056DBD1 /* TileData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TileData.m; sourceTree = "<group>"; };
 		EB8FA6061D989BF200F35211 /* MyTileSet.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = MyTileSet.sks; sourceTree = "<group>"; };
 		EBBBB1631D921D0E007BC0F7 /* TileTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TileTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EBBBB1671D921D0E007BC0F7 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -83,6 +86,8 @@
 				EB8FA6061D989BF200F35211 /* MyTileSet.sks */,
 				EB1477A71D9CB0DA0056DBD1 /* Unit.h */,
 				EB1477A81D9CB0DA0056DBD1 /* Unit.m */,
+				EB1477AA1DA0792C0056DBD1 /* TileData.h */,
+				EB1477AB1DA0792C0056DBD1 /* TileData.m */,
 			);
 			path = TileTest;
 			sourceTree = "<group>";
@@ -172,6 +177,7 @@
 				EBBBB16B1D921D0E007BC0F7 /* AppDelegate.m in Sources */,
 				EBBBB16E1D921D0E007BC0F7 /* GameScene.m in Sources */,
 				EBBBB1681D921D0E007BC0F7 /* main.m in Sources */,
+				EB1477AC1DA0792C0056DBD1 /* TileData.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

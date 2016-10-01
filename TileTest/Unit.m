@@ -51,15 +51,15 @@
     [self.gameScene selectUnit:self];
     
     // make unit slightly larger
-    self.sprite.xScale = 1.2;
-    self.sprite.yScale = 1.2;
+    [self.sprite setScale:1.2];
     
-    // paint tiles
+    self.selectingMovement = YES;
+    
+    // paint tile
 }
 
 - (void)deselectUnit {
-    self.sprite.xScale = 1;
-    self.sprite.yScale = 1;
+    [self.sprite setScale:1];
     
     self.selectingMovement = NO;
 }

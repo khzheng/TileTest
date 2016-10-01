@@ -8,11 +8,13 @@
 
 #import "GameScene.h"
 #import "Unit.h"
+#import "TileData.h"
 
 @interface GameScene()
 
 @property (nonatomic, strong) SKTileMapNode *landBackground;
 @property (nonatomic, strong) NSMutableArray *playerUnits;
+@property (nonatomic, strong) NSMutableArray *tileData;
 
 @end
 
@@ -22,6 +24,7 @@
     self = [super init];
     if (self) {
         _playerUnits = [NSMutableArray array];
+        _tileData = [NSMutableArray array];
     }
     
     return self;
@@ -29,6 +32,8 @@
 
 - (void)loadSceneNodes {
     self.landBackground = (SKTileMapNode *)[self childNodeWithName:@"landBackground"];
+    
+    [self loadTileData];
 }
 
 - (void)loadUnits {
@@ -39,9 +44,23 @@
     [self addChild:unit2];
 }
 
+- (void)loadTileData {
+    for (int row = 0; row < self.landBackground.numberOfRows; row++) {
+        for (int col = 0; col < self.landBackground.numberOfColumns; col++) {
+            SKTileDefinition *tileDef = [self.landBackground tileDefinitionAtColumn:col row:row];
+            if (tileDef && tileDef.userData) {
+                TileData *tileData = [[TileData alloc] init];
+                tileData.tilePosition = CGPointMake(col, row);
+                tileData.tileType = tileDef.userData[@"TileType"];
+                
+                [self.tileData addObject:tileData];
+            }
+        }
+    }
+}
+
 -(void)didMoveToView:(SKView *)view {
     [self loadSceneNodes];
-    
     [self loadUnits];
     
     [self drawGrid];
