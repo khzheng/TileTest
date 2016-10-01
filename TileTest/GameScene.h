@@ -7,6 +7,7 @@
 //
 
 #import <SpriteKit/SpriteKit.h>
+#import "TileData.h"
 
 @class Unit;
 
@@ -18,5 +19,7 @@
 - (void)deselectUnit;
 
 - (CGPoint)tileCoordinateForPosition:(CGPoint)position;
+- (TileData *)tileDataAtTile:(CGPoint)tilePosition;
+- (void)paintMovementTile:(TileData *)tileData;
 
 @end

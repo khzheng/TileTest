@@ -8,7 +8,6 @@
 
 #import "GameScene.h"
 #import "Unit.h"
-#import "TileData.h"
 
 @interface GameScene()
 
@@ -20,16 +19,6 @@
 
 @implementation GameScene
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        _playerUnits = [NSMutableArray array];
-        _tileData = [NSMutableArray array];
-    }
-    
-    return self;
-}
-
 - (void)loadSceneNodes {
     self.landBackground = (SKTileMapNode *)[self childNodeWithName:@"landBackground"];
     
@@ -37,14 +26,21 @@
 }
 
 - (void)loadUnits {
-    Unit *unit1 = [Unit nodeWithScene:self position:[self positionForTileCoordinate:CGPointMake(2, 2)]];
-    Unit *unit2 = [Unit nodeWithScene:self position:[self positionForTileCoordinate:CGPointMake(3, 2)]];
+    _playerUnits = [NSMutableArray array];
+    
+    Unit *unit1 = [Unit nodeWithScene:self position:[self positionForTileCoordinate:CGPointMake(7, 2)]];
+    Unit *unit2 = [Unit nodeWithScene:self position:[self positionForTileCoordinate:CGPointMake(8, 2)]];
+    
+    [self.playerUnits addObject:unit1];
+    [self.playerUnits addObject:unit2];
     
     [self addChild:unit1];
     [self addChild:unit2];
 }
 
 - (void)loadTileData {
+    _tileData = [NSMutableArray array];
+    
     for (int row = 0; row < self.landBackground.numberOfRows; row++) {
         for (int col = 0; col < self.landBackground.numberOfColumns; col++) {
             SKTileDefinition *tileDef = [self.landBackground tileDefinitionAtColumn:col row:row];
@@ -138,6 +134,21 @@
 - (CGPoint)positionForTileCoordinate:(CGPoint)coordinate {
     CGSize tileSize = [self tileSize];
     return CGPointMake(coordinate.x * tileSize.width + tileSize.width / 2, coordinate.y * tileSize.height + tileSize.height / 2);
+}
+
+- (TileData *)tileDataAtTile:(CGPoint)tilePosition {
+    for (TileData *tileData in self.tileData) {
+        if (CGPointEqualToPoint(tilePosition, tileData.tilePosition))
+            return tileData;
+    }
+    
+    return nil;
+}
+
+- (void)paintMovementTile:(TileData *)tileData {
+    SKSpriteNode *node = [SKSpriteNode spriteNodeWithColor:[UIColor blueColor] size:[self tileSize]];
+    node.position = [self positionForTileCoordinate:tileData.tilePosition];
+    [self addChild:node];
 }
 
 @end

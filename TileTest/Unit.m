@@ -56,6 +56,9 @@
     self.selectingMovement = YES;
     
     // paint tile
+    CGPoint point = [self.gameScene tileCoordinateForPosition:self.sprite.position];
+    TileData *tileData = [self.gameScene tileDataAtTile:point];
+    [self.gameScene paintMovementTile:tileData];
 }
 
 - (void)deselectUnit {
