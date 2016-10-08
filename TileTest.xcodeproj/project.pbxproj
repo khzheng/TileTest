@@ -10,6 +10,8 @@
 		EB1477A91D9CB0DA0056DBD1 /* Unit.m in Sources */ = {isa = PBXBuildFile; fileRef = EB1477A81D9CB0DA0056DBD1 /* Unit.m */; };
 		EB1477AC1DA0792C0056DBD1 /* TileData.m in Sources */ = {isa = PBXBuildFile; fileRef = EB1477AB1DA0792C0056DBD1 /* TileData.m */; };
 		EB8FA6071D989BF200F35211 /* MyTileSet.sks in Resources */ = {isa = PBXBuildFile; fileRef = EB8FA6061D989BF200F35211 /* MyTileSet.sks */; };
+		EB9A1BB21DA745A9008A71C0 /* Level1.sks in Resources */ = {isa = PBXBuildFile; fileRef = EB9A1BB11DA745A9008A71C0 /* Level1.sks */; };
+		EB9E4B531DA749AE00EC915E /* Level1Scene.m in Sources */ = {isa = PBXBuildFile; fileRef = EB9E4B521DA749AE00EC915E /* Level1Scene.m */; };
 		EBBBB1681D921D0E007BC0F7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EBBBB1671D921D0E007BC0F7 /* main.m */; };
 		EBBBB16B1D921D0E007BC0F7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = EBBBB16A1D921D0E007BC0F7 /* AppDelegate.m */; };
 		EBBBB16E1D921D0E007BC0F7 /* GameScene.m in Sources */ = {isa = PBXBuildFile; fileRef = EBBBB16D1D921D0E007BC0F7 /* GameScene.m */; };
@@ -26,6 +28,9 @@
 		EB1477AA1DA0792C0056DBD1 /* TileData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TileData.h; sourceTree = "<group>"; };
 		EB1477AB1DA0792C0056DBD1 /* TileData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TileData.m; sourceTree = "<group>"; };
 		EB8FA6061D989BF200F35211 /* MyTileSet.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = MyTileSet.sks; sourceTree = "<group>"; };
+		EB9A1BB11DA745A9008A71C0 /* Level1.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Level1.sks; sourceTree = "<group>"; };
+		EB9E4B511DA749AE00EC915E /* Level1Scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Level1Scene.h; sourceTree = "<group>"; };
+		EB9E4B521DA749AE00EC915E /* Level1Scene.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Level1Scene.m; sourceTree = "<group>"; };
 		EBBBB1631D921D0E007BC0F7 /* TileTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TileTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EBBBB1671D921D0E007BC0F7 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EBBBB1691D921D0E007BC0F7 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -88,6 +93,9 @@
 				EB1477A81D9CB0DA0056DBD1 /* Unit.m */,
 				EB1477AA1DA0792C0056DBD1 /* TileData.h */,
 				EB1477AB1DA0792C0056DBD1 /* TileData.m */,
+				EB9A1BB11DA745A9008A71C0 /* Level1.sks */,
+				EB9E4B511DA749AE00EC915E /* Level1Scene.h */,
+				EB9E4B521DA749AE00EC915E /* Level1Scene.m */,
 			);
 			path = TileTest;
 			sourceTree = "<group>";
@@ -159,6 +167,7 @@
 			files = (
 				EBBBB1701D921D0E007BC0F7 /* GameScene.sks in Resources */,
 				EBBBB17B1D921D0E007BC0F7 /* LaunchScreen.storyboard in Resources */,
+				EB9A1BB21DA745A9008A71C0 /* Level1.sks in Resources */,
 				EBBBB1781D921D0E007BC0F7 /* Assets.xcassets in Resources */,
 				EB8FA6071D989BF200F35211 /* MyTileSet.sks in Resources */,
 				EBBBB1761D921D0E007BC0F7 /* Main.storyboard in Resources */,
@@ -173,6 +182,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EB1477A91D9CB0DA0056DBD1 /* Unit.m in Sources */,
+				EB9E4B531DA749AE00EC915E /* Level1Scene.m in Sources */,
 				EBBBB1731D921D0E007BC0F7 /* GameViewController.m in Sources */,
 				EBBBB16B1D921D0E007BC0F7 /* AppDelegate.m in Sources */,
 				EBBBB16E1D921D0E007BC0F7 /* GameScene.m in Sources */,

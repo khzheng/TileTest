@@ -8,6 +8,7 @@
 
 #import "GameViewController.h"
 #import "GameScene.h"
+#import "Level1Scene.h"
 
 @implementation GameViewController
 
@@ -22,12 +23,16 @@
     /* Sprite Kit applies additional optimizations to improve rendering performance */
     skView.ignoresSiblingOrder = YES;
     
-    // Create and configure the scene.
-    GameScene *scene = [GameScene nodeWithFileNamed:@"GameScene"];
-    scene.scaleMode = SKSceneScaleModeAspectFill;
+    Level1Scene *scene1 = [Level1Scene nodeWithFileNamed:@"Level1"];
+    scene1.scaleMode = SKSceneScaleModeAspectFill;
+    [skView presentScene:scene1];
     
-    // Present the scene.
-    [skView presentScene:scene];
+    // Create and configure the scene.
+//    GameScene *scene = [GameScene nodeWithFileNamed:@"Level1"];
+//    scene.scaleMode = SKSceneScaleModeAspectFill;
+//
+//    // Present the scene.
+//    [skView presentScene:scene];
 }
 
 - (BOOL)shouldAutorotate
