@@ -7,6 +7,7 @@
 //
 
 #import "Level1Scene.h"
+#import "Tower.h"
 #import <GameplayKit/GameplayKit.h>
 
 @interface Level1Scene()
@@ -111,17 +112,16 @@
     if (tileDef) {
         // is there a tower at the touch location
         BOOL shouldPlaceTower = YES;
-        for (SKSpriteNode *tower in self.towers) {
-            if (CGRectContainsPoint(tower.frame, touchLocation)) {
+        for (Tower *tower in self.towers) {
+            if (CGRectContainsPoint(tower.sprite.frame, touchLocation)) {
                 shouldPlaceTower = NO;
                 break;
             }
         }
         
         if (shouldPlaceTower) {
-            SKSpriteNode *tower = [SKSpriteNode spriteNodeWithImageNamed:@"Soldier"];
-            tower.size = self.road.tileSize;
-            tower.position = [self positionForTileCoordinate:[self tileCoordinateForPosition:touchLocation]];
+            Tower *tower = [Tower nodeWithScene:self position:[self positionForTileCoordinate:[self tileCoordinateForPosition:touchLocation]]];
+            
             [self addChild:tower];
             [self.towers addObject:tower];
         } else {
