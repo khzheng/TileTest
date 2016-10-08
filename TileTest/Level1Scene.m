@@ -12,9 +12,12 @@
 @interface Level1Scene()
 
 @property (nonatomic, strong) SKTileMapNode *road;
+@property (nonatomic, strong) SKTileMapNode *grass;
+
 @property (nonatomic, strong) GKGridGraph *graph;
 @property (nonatomic, strong) GKGridGraphNode *spawnNode;
 @property (nonatomic, strong) GKGridGraphNode *endNode;
+@property (nonatomic, strong) NSMutableArray *towers;
 
 @end
 
@@ -23,6 +26,7 @@
 - (void)didMoveToView:(SKView *)view {
     // load scene nodes
     self.road = (SKTileMapNode *)[self childNodeWithName:@"road"];
+    self.grass = (SKTileMapNode *)[self childNodeWithName:@"grass"];
     
     // create graph
     self.graph = [GKGridGraph graphFromGridStartingAt:(vector_int2){0, 0} width:(int)self.road.numberOfColumns height:(int)self.road.numberOfRows diagonalsAllowed:NO];
@@ -43,6 +47,8 @@
     
     self.spawnNode = [self.graph nodeAtGridPosition:(vector_int2){5,15}];
     self.endNode = [self.graph nodeAtGridPosition:(vector_int2){20,5}];
+    
+    self.towers = [NSMutableArray array];
     
     [self drawGrid];
     
@@ -95,21 +101,35 @@
     }
 }
 
-//- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-//    UITouch *touch = [touches anyObject];
-//    CGPoint touchLocation = [touch locationInNode:self];
-//    
-//    CGPoint tileCoord = [self tileCoordinateForPosition:touchLocation];
-//    NSLog(@"dest tile: %@", NSStringFromCGPoint(tileCoord));
-//    
-//    GKGridGraphNode *node = [self.graph nodeAtGridPosition:(vector_int2){tileCoord.x, tileCoord.y}];
-//    
-//    if (node) {
-//        NSArray<GKGridGraphNode *> *pathNodes = [self.graph findPathFromNode:self.spawnNode toNode:node];
-//        for (GKGridGraphNode *node in pathNodes) {
-//            NSLog(@"%d, %d", node.gridPosition.x, node.gridPosition.y);
-//        }
-//    }
-//}
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    UITouch *touch = [touches anyObject];
+    CGPoint touchLocation = [touch locationInNode:self];
+    CGPoint tilePosition = [self tileCoordinateForPosition:touchLocation];
+    
+    // is the tile eligible for a tower?
+    SKTileDefinition *tileDef = [self.grass tileDefinitionAtColumn:tilePosition.x row:tilePosition.y];
+    if (tileDef) {
+        // is there a tower at the touch location
+        BOOL shouldPlaceTower = YES;
+        for (SKSpriteNode *tower in self.towers) {
+            if (CGRectContainsPoint(tower.frame, touchLocation)) {
+                shouldPlaceTower = NO;
+                break;
+            }
+        }
+        
+        if (shouldPlaceTower) {
+            SKSpriteNode *tower = [SKSpriteNode spriteNodeWithImageNamed:@"Soldier"];
+            tower.size = self.road.tileSize;
+            tower.position = [self positionForTileCoordinate:[self tileCoordinateForPosition:touchLocation]];
+            [self addChild:tower];
+            [self.towers addObject:tower];
+        } else {
+            NSLog(@"tower already exists at %@", NSStringFromCGPoint([self tileCoordinateForPosition:touchLocation]));
+        }
+    } else {
+        NSLog(@"cannot place tower here");
+    }
+}
 
 @end
