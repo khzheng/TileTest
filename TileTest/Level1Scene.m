@@ -8,6 +8,7 @@
 
 #import "Level1Scene.h"
 #import "Tower.h"
+#import "Enemy.h"
 #import <GameplayKit/GameplayKit.h>
 
 @interface Level1Scene()
@@ -19,6 +20,7 @@
 @property (nonatomic, strong) GKGridGraphNode *spawnNode;
 @property (nonatomic, strong) GKGridGraphNode *endNode;
 @property (nonatomic, strong) NSMutableArray *towers;
+@property (nonatomic, strong) NSMutableArray *enemies;
 
 @end
 
@@ -53,10 +55,18 @@
     
     [self drawGrid];
     
-    SKSpriteNode *spaceship = [SKSpriteNode spriteNodeWithImageNamed:@"Spaceship"];
-    spaceship.position = [self positionForTileCoordinate:CGPointMake(5, 15)];
-    spaceship.size = self.road.tileSize;
-    [self addChild:spaceship];
+    // schedule enemies
+    self.enemies = [NSMutableArray array];
+    [self performSelector:@selector(addAndMoveEnemy) withObject:nil afterDelay:2];
+    [self performSelector:@selector(addAndMoveEnemy) withObject:nil afterDelay:4];
+    [self performSelector:@selector(addAndMoveEnemy) withObject:nil afterDelay:6];
+    [self performSelector:@selector(addAndMoveEnemy) withObject:nil afterDelay:8];
+}
+
+- (void)addAndMoveEnemy {
+    Enemy *enemy = [Enemy nodeWithScene:self position:[self positionForTileCoordinate:CGPointMake(5, 15)]];
+    [self addChild:enemy];
+    [self.enemies addObject:enemy];
     
     NSArray *pathNodes = [self.graph findPathFromNode:self.spawnNode toNode:self.endNode];
     NSMutableArray *moveActions = [NSMutableArray array];
@@ -69,7 +79,8 @@
     }
     
     SKAction *sequence = [SKAction sequence:moveActions];
-    [spaceship runAction:sequence];
+    
+    [enemy.sprite runAction:sequence];
 }
 
 - (CGPoint)positionForTileCoordinate:(CGPoint)coordinate {
