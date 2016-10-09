@@ -18,6 +18,13 @@
     
     tower.levelScene = levelScene;
     
+    CGRect circle = CGRectMake(position.x - tower.attackRange, position.y - tower.attackRange, tower.attackRange * 2, tower.attackRange * 2);
+    SKShapeNode *shapeNode = [[SKShapeNode alloc] init];
+    shapeNode.path = [UIBezierPath bezierPathWithOvalInRect:circle].CGPath;
+    shapeNode.strokeColor = [SKColor redColor];
+    shapeNode.lineWidth = 2;
+    [tower addChild:shapeNode];
+    
     return tower;
 }
 
