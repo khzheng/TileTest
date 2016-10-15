@@ -7,9 +7,9 @@
 //
 
 #import "Level1Scene.h"
-#import "Tower.h"
-#import "Enemy.h"
-#import <GameplayKit/GameplayKit.h>
+//#import "Tower.h"
+//#import "Enemy.h"
+#import "MovementComponent.h"
 
 @interface Level1Scene()
 
@@ -17,6 +17,8 @@
 @property (nonatomic, strong) SKTileMapNode *grass;
 
 @property (nonatomic, strong) GKGridGraph *graph;
+@property (nonatomic, strong) GKGridGraph *openTowersGraph;
+
 @property (nonatomic, strong) GKGridGraphNode *spawnNode;
 @property (nonatomic, strong) GKGridGraphNode *endNode;
 @property (nonatomic, strong) NSMutableArray *towers;
@@ -33,20 +35,23 @@
     
     // create graph
     self.graph = [GKGridGraph graphFromGridStartingAt:(vector_int2){0, 0} width:(int)self.road.numberOfColumns height:(int)self.road.numberOfRows diagonalsAllowed:NO];
-    
+    self.openTowersGraph = [GKGridGraph graphFromGridStartingAt:(vector_int2){0, 0} width:(int)self.road.numberOfColumns height:(int)self.road.numberOfRows diagonalsAllowed:NO];
     // find walls
-    NSMutableArray *walls = [NSMutableArray array];
+    NSMutableArray *roadWalls = [NSMutableArray array];
+    NSMutableArray *openTowersWalls = [NSMutableArray array];
     for (int col = 0; col < self.road.numberOfColumns; col++) {
         for (int row = 0; row < self.road.numberOfRows; row++) {
             SKTileDefinition *tileDef = [self.road tileDefinitionAtColumn:col row:row];
             if (tileDef == nil) {
-                [walls addObject:[self.graph nodeAtGridPosition:(vector_int2){col, row}]];
+                [roadWalls addObject:[self.graph nodeAtGridPosition:(vector_int2){col, row}]];
+            } else {
+                [openTowersWalls addObject:[self.openTowersGraph nodeAtGridPosition:(vector_int2){col, row}]];
             }
         }
     }
-    
     // remove walls
-    [self.graph removeNodes:walls];
+    [self.graph removeNodes:roadWalls];
+    [self.openTowersGraph removeNodes:openTowersWalls];
     
     self.spawnNode = [self.graph nodeAtGridPosition:(vector_int2){5,15}];
     self.endNode = [self.graph nodeAtGridPosition:(vector_int2){20,5}];
@@ -57,31 +62,59 @@
     
     // schedule enemies
     self.enemies = [NSMutableArray array];
-    [self performSelector:@selector(addAndMoveEnemy) withObject:nil afterDelay:2];
-    [self performSelector:@selector(addAndMoveEnemy) withObject:nil afterDelay:4];
-    [self performSelector:@selector(addAndMoveEnemy) withObject:nil afterDelay:6];
-    [self performSelector:@selector(addAndMoveEnemy) withObject:nil afterDelay:8];
+    [self createEnemies];
 }
 
-- (void)addAndMoveEnemy {
-    Enemy *enemy = [Enemy nodeWithScene:self position:[self positionForTileCoordinate:CGPointMake(5, 15)]];
-    [self addChild:enemy];
-    [self.enemies addObject:enemy];
-    
-    NSArray *pathNodes = [self.graph findPathFromNode:self.spawnNode toNode:self.endNode];
-    NSMutableArray *moveActions = [NSMutableArray array];
-    
-    for (int i = 1; i < [pathNodes count]; i++) {
-        GKGridGraphNode *node = pathNodes[i];
-        CGPoint destination = [self positionForTileCoordinate:CGPointMake(node.gridPosition.x, node.gridPosition.y)];
-        SKAction *moveAction = [SKAction moveTo:destination duration:0.5];
-        [moveActions addObject:moveAction];
+- (void)createEnemies {
+    for (int i = 0; i < 10; i++) {
+        GKEntity *enemy = [GKEntity entity];
+        SKSpriteNode *enemySprite = [SKSpriteNode spriteNodeWithImageNamed:@"Spaceship"];
+        enemySprite.size = self.road.tileSize;
+        enemySprite.position = [self positionForTileCoordinate:CGPointMake(self.spawnNode.gridPosition.x, self.spawnNode.gridPosition.y)];
+        
+        MovementComponent *movementComponent = [[MovementComponent alloc] initWithScene:self sprite:enemySprite coordinate:self.spawnNode.gridPosition destination:self.endNode.gridPosition];
+        [enemy addComponent:movementComponent];
+        
+        [self.enemies addObject:enemy];
     }
     
-    SKAction *sequence = [SKAction sequence:moveActions];
+    NSMutableArray *sequence = [NSMutableArray array];
+    for (GKEntity *enemy in self.enemies) {
+        SKAction *action = [SKAction runBlock:^{
+            MovementComponent *mc = (MovementComponent *)[enemy componentForClass:[MovementComponent class]];
+            [self addChild:mc.sprite];
+            
+            NSArray *path = [mc pathToDestination];
+            [mc followPath:path];
+        }];
+        
+        SKAction *delayAction = [SKAction waitForDuration:1];
+        
+        [sequence addObjectsFromArray:@[action, delayAction]];
+    }
     
-    [enemy.sprite runAction:sequence];
+    [self runAction:[SKAction sequence:sequence]];
 }
+
+//- (void)addAndMoveEnemy {
+//    Enemy *enemy = [Enemy nodeWithScene:self position:[self positionForTileCoordinate:CGPointMake(5, 15)]];
+//    [self addChild:enemy];
+//    [self.enemies addObject:enemy];
+//    
+//    NSArray *pathNodes = [self.graph findPathFromNode:self.spawnNode toNode:self.endNode];
+//    NSMutableArray *moveActions = [NSMutableArray array];
+//    
+//    for (int i = 1; i < [pathNodes count]; i++) {
+//        GKGridGraphNode *node = pathNodes[i];
+//        CGPoint destination = [self positionForTileCoordinate:CGPointMake(node.gridPosition.x, node.gridPosition.y)];
+//        SKAction *moveAction = [SKAction moveTo:destination duration:0.5];
+//        [moveActions addObject:moveAction];
+//    }
+//    
+//    SKAction *sequence = [SKAction sequence:moveActions];
+//    
+//    [enemy.sprite runAction:sequence];
+//}
 
 - (CGPoint)positionForTileCoordinate:(CGPoint)coordinate {
     CGSize tileSize = self.road.tileSize;
@@ -118,28 +151,25 @@
     CGPoint touchLocation = [touch locationInNode:self];
     CGPoint tilePosition = [self tileCoordinateForPosition:touchLocation];
     
+    [self createTowerAtCoordinate:(vector_int2){tilePosition.x, tilePosition.y}];
+}
+
+- (void)createTowerAtCoordinate:(vector_int2)coordinate {
     // is the tile eligible for a tower?
-    SKTileDefinition *tileDef = [self.grass tileDefinitionAtColumn:tilePosition.x row:tilePosition.y];
-    if (tileDef) {
-        // is there a tower at the touch location
-        BOOL shouldPlaceTower = YES;
-        for (Tower *tower in self.towers) {
-            if (CGRectContainsPoint(tower.sprite.frame, touchLocation)) {
-                shouldPlaceTower = NO;
-                break;
-            }
-        }
+    GKGridGraphNode *node = [self.openTowersGraph nodeAtGridPosition:coordinate];
+    if (node) {
+        GKEntity *towerEntity = [GKEntity entity];
+        SKSpriteNode *towerSprite = [SKSpriteNode spriteNodeWithImageNamed:@"Soldier"];
+        towerSprite.position = [self positionForTileCoordinate:CGPointMake(coordinate.x, coordinate.y)];
         
-        if (shouldPlaceTower) {
-            Tower *tower = [Tower nodeWithScene:self position:[self positionForTileCoordinate:[self tileCoordinateForPosition:touchLocation]]];
-            
-            [self addChild:tower];
-            [self.towers addObject:tower];
-        } else {
-            NSLog(@"tower already exists at %@", NSStringFromCGPoint([self tileCoordinateForPosition:touchLocation]));
-        }
+        VisualComponent *visualComponent = [[VisualComponent alloc] initWithScene:self sprite:towerSprite coordinate:coordinate];
+        [towerEntity addComponent:visualComponent];
+        
+        [self addChild:towerSprite];
+        
+        [self.openTowersGraph removeNodes:@[node]];
     } else {
-        NSLog(@"cannot place tower here");
+        NSLog(@"cannot place tower here: {%d, %d}", coordinate.x, coordinate.y);
     }
 }
 

@@ -11,6 +11,8 @@
 		EB1477AC1DA0792C0056DBD1 /* TileData.m in Sources */ = {isa = PBXBuildFile; fileRef = EB1477AB1DA0792C0056DBD1 /* TileData.m */; };
 		EB1766E51DA9A9BC00BC2740 /* Tower.m in Sources */ = {isa = PBXBuildFile; fileRef = EB1766E41DA9A9BC00BC2740 /* Tower.m */; };
 		EB1766E81DAA04C800BC2740 /* Enemy.m in Sources */ = {isa = PBXBuildFile; fileRef = EB1766E71DAA04C800BC2740 /* Enemy.m */; };
+		EB3A40191DB2AF490091A642 /* VisualComponent.m in Sources */ = {isa = PBXBuildFile; fileRef = EB3A40181DB2AF490091A642 /* VisualComponent.m */; };
+		EB3A401C1DB2BB2E0091A642 /* MovementComponent.m in Sources */ = {isa = PBXBuildFile; fileRef = EB3A401B1DB2BB2E0091A642 /* MovementComponent.m */; };
 		EB8FA6071D989BF200F35211 /* MyTileSet.sks in Resources */ = {isa = PBXBuildFile; fileRef = EB8FA6061D989BF200F35211 /* MyTileSet.sks */; };
 		EB9A1BB21DA745A9008A71C0 /* Level1.sks in Resources */ = {isa = PBXBuildFile; fileRef = EB9A1BB11DA745A9008A71C0 /* Level1.sks */; };
 		EB9E4B531DA749AE00EC915E /* Level1Scene.m in Sources */ = {isa = PBXBuildFile; fileRef = EB9E4B521DA749AE00EC915E /* Level1Scene.m */; };
@@ -33,6 +35,10 @@
 		EB1766E41DA9A9BC00BC2740 /* Tower.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Tower.m; sourceTree = "<group>"; };
 		EB1766E61DAA04C800BC2740 /* Enemy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Enemy.h; sourceTree = "<group>"; };
 		EB1766E71DAA04C800BC2740 /* Enemy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Enemy.m; sourceTree = "<group>"; };
+		EB3A40171DB2AF490091A642 /* VisualComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VisualComponent.h; sourceTree = "<group>"; };
+		EB3A40181DB2AF490091A642 /* VisualComponent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VisualComponent.m; sourceTree = "<group>"; };
+		EB3A401A1DB2BB2E0091A642 /* MovementComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MovementComponent.h; sourceTree = "<group>"; };
+		EB3A401B1DB2BB2E0091A642 /* MovementComponent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MovementComponent.m; sourceTree = "<group>"; };
 		EB8FA6061D989BF200F35211 /* MyTileSet.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = MyTileSet.sks; sourceTree = "<group>"; };
 		EB9A1BB11DA745A9008A71C0 /* Level1.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Level1.sks; sourceTree = "<group>"; };
 		EB9E4B511DA749AE00EC915E /* Level1Scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Level1Scene.h; sourceTree = "<group>"; };
@@ -106,6 +112,10 @@
 				EB1766E41DA9A9BC00BC2740 /* Tower.m */,
 				EB1766E61DAA04C800BC2740 /* Enemy.h */,
 				EB1766E71DAA04C800BC2740 /* Enemy.m */,
+				EB3A40171DB2AF490091A642 /* VisualComponent.h */,
+				EB3A40181DB2AF490091A642 /* VisualComponent.m */,
+				EB3A401A1DB2BB2E0091A642 /* MovementComponent.h */,
+				EB3A401B1DB2BB2E0091A642 /* MovementComponent.m */,
 			);
 			path = TileTest;
 			sourceTree = "<group>";
@@ -195,9 +205,11 @@
 				EB1477A91D9CB0DA0056DBD1 /* Unit.m in Sources */,
 				EB9E4B531DA749AE00EC915E /* Level1Scene.m in Sources */,
 				EBBBB1731D921D0E007BC0F7 /* GameViewController.m in Sources */,
+				EB3A401C1DB2BB2E0091A642 /* MovementComponent.m in Sources */,
 				EB1766E51DA9A9BC00BC2740 /* Tower.m in Sources */,
 				EBBBB16B1D921D0E007BC0F7 /* AppDelegate.m in Sources */,
 				EBBBB16E1D921D0E007BC0F7 /* GameScene.m in Sources */,
+				EB3A40191DB2AF490091A642 /* VisualComponent.m in Sources */,
 				EBBBB1681D921D0E007BC0F7 /* main.m in Sources */,
 				EB1477AC1DA0792C0056DBD1 /* TileData.m in Sources */,
 			);

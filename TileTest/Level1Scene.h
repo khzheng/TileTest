@@ -7,7 +7,12 @@
 //
 
 #import <SpriteKit/SpriteKit.h>
+#import <GameplayKit/GameplayKit.h>
 
 @interface Level1Scene : SKScene
+
+@property (nonatomic, readonly, strong) GKGridGraph *graph;
+
+- (CGPoint)positionForTileCoordinate:(CGPoint)coordinate;
 
 @end
