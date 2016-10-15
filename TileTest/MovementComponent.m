@@ -14,7 +14,7 @@
                        sprite:(SKNode *)sprite
                    coordinate:(vector_int2)coordinate
                   destination:(vector_int2)destination {
-    self = [super initWithScene:scene sprite:sprite coordinate:coordinate];
+    self = [super initWithScene:scene sprite:sprite bulletSprite:nil coordinate:coordinate];
     if (self) {
         _destination = destination;
     }

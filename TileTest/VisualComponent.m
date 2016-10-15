@@ -12,11 +12,13 @@
 
 - (instancetype)initWithScene:(Level1Scene *)scene
                        sprite:(SKNode *)sprite
+                 bulletSprite:(SKSpriteNode *)bulletSprite
                    coordinate:(vector_int2)coordinate {
     self = [super init];
     if (self) {
         _scene = scene;
         _sprite = sprite;
+        _bulletSprite = bulletSprite;
         _coordinate = coordinate;
     }
     

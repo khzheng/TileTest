@@ -106,6 +106,16 @@
     [self runAction:[SKAction sequence:sequence]];
 }
 
+- (GKEntity *)enemyForSprite:(SKNode *)sprite {
+    for (GKEntity *enemy in self.enemies) {
+        MovementComponent *mc = (MovementComponent *)[enemy componentForClass:[MovementComponent class]];
+        if (mc && mc.sprite == sprite)
+            return enemy;
+    }
+    
+    return nil;
+}
+
 //- (void)addAndMoveEnemy {
 //    Enemy *enemy = [Enemy nodeWithScene:self position:[self positionForTileCoordinate:CGPointMake(5, 15)]];
 //    [self addChild:enemy];
@@ -171,6 +181,7 @@
         GKEntity *towerEntity = [GKEntity entity];
         
         SKNode *sknode = [SKNode node];
+        sknode.name = @"Tower";
         sknode.position = [self positionForTileCoordinate:CGPointMake(coordinate.x, coordinate.y)];
         
         SKSpriteNode *towerSprite = [SKSpriteNode spriteNodeWithImageNamed:@"Soldier"];
@@ -187,7 +198,9 @@
         sknode.physicsBody.contactTestBitMask = 2;
         sknode.physicsBody.collisionBitMask = 0;
         
-        VisualComponent *visualComponent = [[VisualComponent alloc] initWithScene:self sprite:sknode coordinate:coordinate];
+        SKSpriteNode *bulletSprite = [SKSpriteNode spriteNodeWithColor:[UIColor yellowColor] size:CGSizeMake(10, 10)];
+        
+        VisualComponent *visualComponent = [[VisualComponent alloc] initWithScene:self sprite:sknode bulletSprite:bulletSprite coordinate:coordinate];
         [towerEntity addComponent:visualComponent];
         
         FiringComponent *firingComponent = [[FiringComponent alloc] initWithSprite:towerSprite damage:1 fireRate:1];
@@ -204,18 +217,68 @@
     }
 }
 
+- (GKEntity *)towerForSprite:(SKNode *)sprite {
+    for (GKEntity *tower in self.towers) {
+        VisualComponent *vc = (VisualComponent *)[tower componentForClass:[VisualComponent class]];
+        if (vc && vc.sprite == sprite)
+            return tower;
+    }
+    
+    return nil;
+}
+
+- (void)fireBulletFromEntity:(GKEntity *)entity towardsEnemy:(GKEntity *)enemy angle:(float)angle {
+    MovementComponent *enemyMc = (MovementComponent *)[enemy componentForClass:[MovementComponent class]];
+    CGPoint enemyPosition = enemyMc.sprite.position;
+    
+    VisualComponent *entityVc = (VisualComponent *)[entity componentForClass:[VisualComponent class]];
+    CGPoint entityPosition = entityVc.sprite.position;
+
+    SKSpriteNode *bulletSprite = entityVc.bulletSprite;
+    SKSpriteNode *bulletSpriteCopy = [bulletSprite copy];
+    bulletSpriteCopy.position = entityPosition;
+    bulletSpriteCopy.zPosition = 1;    // position bullet behind tower?
+//    bulletSpriteCopy.zRotation = angle;
+    [self addChild:bulletSpriteCopy];
+    
+    SKAction *trajAction = [SKAction moveTo:enemyPosition duration:0.2];
+    [bulletSpriteCopy runAction:trajAction completion:^{
+        [self removeChildrenInArray:@[bulletSpriteCopy]];
+    }];
+}
+
 - (void)update:(NSTimeInterval)currentTime {
     for (GKEntity *tower in self.towers) {
         [tower updateWithDeltaTime:currentTime];
     }
 }
 
+- (void)contactWithNodeA:(SKNode *)nodeA nodeB:(SKNode *)nodeB entered:(BOOL)entered {
+    GKEntity *enemy;
+    GKEntity *tower;
+    if ([[nodeA name] isEqualToString:@"Tower"]) {          // nodeA is tower
+        enemy = [self enemyForSprite:nodeB];
+        tower = [self towerForSprite:nodeA];
+    } else if ([[nodeB name] isEqualToString:@"Tower"]) {   // nodeB is tower
+        enemy = [self enemyForSprite:nodeA];
+        tower = [self towerForSprite:nodeB];
+    }
+    
+    if (enemy) {
+        FiringComponent *fc = (FiringComponent *)[tower componentForClass:[FiringComponent class]];
+        if (entered)
+            [fc enemyEnteredTowerRange:enemy];
+        else
+            [fc enemyExitedTowerRange:enemy];
+    }
+}
+
 - (void)didBeginContact:(SKPhysicsContact *)contact {
-    NSLog(@"beginContact");
+    [self contactWithNodeA:contact.bodyA.node nodeB:contact.bodyB.node entered:YES];
 }
 
 - (void)didEndContact:(SKPhysicsContact *)contact {
-    NSLog(@"endContact");
+    [self contactWithNodeA:contact.bodyA.node nodeB:contact.bodyB.node entered:NO];
 }
 
 @end

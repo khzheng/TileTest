@@ -16,5 +16,7 @@
 @property (nonatomic, assign) float fireRate;
 
 - (instancetype)initWithSprite:(SKSpriteNode *)sprite damage:(float)damage fireRate:(float)fireRate;
+- (void)enemyEnteredTowerRange:(GKEntity *)enemy;
+- (void)enemyExitedTowerRange:(GKEntity *)enemy;
 
 @end

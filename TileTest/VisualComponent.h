@@ -14,10 +14,12 @@
 
 @property (nonatomic, weak) Level1Scene *scene;
 @property (nonatomic, strong) SKNode *sprite;
+@property (nonatomic, strong) SKSpriteNode *bulletSprite;
 @property (nonatomic, assign) vector_int2 coordinate;
 
 - (instancetype)initWithScene:(Level1Scene *)scene
                        sprite:(SKNode *)sprite
+                 bulletSprite:(SKSpriteNode *)bulletSprite
                    coordinate:(vector_int2)coordinate;
 
 @end
