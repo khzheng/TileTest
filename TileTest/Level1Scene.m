@@ -10,6 +10,7 @@
 //#import "Tower.h"
 //#import "Enemy.h"
 #import "MovementComponent.h"
+#import "FiringComponent.h"
 
 @interface Level1Scene()
 
@@ -23,6 +24,8 @@
 @property (nonatomic, strong) GKGridGraphNode *endNode;
 @property (nonatomic, strong) NSMutableArray *towers;
 @property (nonatomic, strong) NSMutableArray *enemies;
+
+@property (nonatomic, assign) NSTimeInterval previousTime;
 
 @end
 
@@ -53,6 +56,9 @@
     [self.graph removeNodes:roadWalls];
     [self.openTowersGraph removeNodes:openTowersWalls];
     
+    self.physicsWorld.contactDelegate = self;
+    self.physicsWorld.gravity = CGVectorMake(0, 0);
+    
     self.spawnNode = [self.graph nodeAtGridPosition:(vector_int2){5,15}];
     self.endNode = [self.graph nodeAtGridPosition:(vector_int2){20,5}];
     
@@ -71,6 +77,10 @@
         SKSpriteNode *enemySprite = [SKSpriteNode spriteNodeWithImageNamed:@"Spaceship"];
         enemySprite.size = self.road.tileSize;
         enemySprite.position = [self positionForTileCoordinate:CGPointMake(self.spawnNode.gridPosition.x, self.spawnNode.gridPosition.y)];
+        enemySprite.physicsBody = [SKPhysicsBody bodyWithCircleOfRadius:enemySprite.size.width/2];
+        enemySprite.physicsBody.categoryBitMask = 2;
+        enemySprite.physicsBody.contactTestBitMask = 1;
+        enemySprite.physicsBody.collisionBitMask = 0;
         
         MovementComponent *movementComponent = [[MovementComponent alloc] initWithScene:self sprite:enemySprite coordinate:self.spawnNode.gridPosition destination:self.endNode.gridPosition];
         [enemy addComponent:movementComponent];
@@ -166,20 +176,46 @@
         SKSpriteNode *towerSprite = [SKSpriteNode spriteNodeWithImageNamed:@"Soldier"];
         [sknode addChild:towerSprite];
         
-//        SKShapeNode *circle = [SKShapeNode shapeNodeWithCircleOfRadius:100];
-//        circle.strokeColor = [UIColor redColor];
-//        [sknode addChild:circle];
+        float radius = 100;
+        SKShapeNode *circle = [SKShapeNode shapeNodeWithCircleOfRadius:radius];
+        circle.strokeColor = [UIColor redColor];
+        [sknode addChild:circle];
+        
+        sknode.physicsBody = [SKPhysicsBody bodyWithCircleOfRadius:radius];
+        sknode.physicsBody.dynamic = NO;
+        sknode.physicsBody.categoryBitMask = 1;
+        sknode.physicsBody.contactTestBitMask = 2;
+        sknode.physicsBody.collisionBitMask = 0;
         
         VisualComponent *visualComponent = [[VisualComponent alloc] initWithScene:self sprite:sknode coordinate:coordinate];
         [towerEntity addComponent:visualComponent];
+        
+        FiringComponent *firingComponent = [[FiringComponent alloc] initWithSprite:towerSprite damage:1 fireRate:1];
+        [towerEntity addComponent:firingComponent];
         
         [self addChild:visualComponent.sprite];
         
         // remove node from grid
         [self.openTowersGraph removeNodes:@[node]];
+        
+        [self.towers addObject:towerEntity];
     } else {
         NSLog(@"cannot place tower here: {%d, %d}", coordinate.x, coordinate.y);
     }
+}
+
+- (void)update:(NSTimeInterval)currentTime {
+    for (GKEntity *tower in self.towers) {
+        [tower updateWithDeltaTime:currentTime];
+    }
+}
+
+- (void)didBeginContact:(SKPhysicsContact *)contact {
+    NSLog(@"beginContact");
+}
+
+- (void)didEndContact:(SKPhysicsContact *)contact {
+    NSLog(@"endContact");
 }
 
 @end

@@ -9,7 +9,7 @@
 #import <SpriteKit/SpriteKit.h>
 #import <GameplayKit/GameplayKit.h>
 
-@interface Level1Scene : SKScene
+@interface Level1Scene : SKScene <SKPhysicsContactDelegate>
 
 @property (nonatomic, readonly, strong) GKGridGraph *graph;
 
