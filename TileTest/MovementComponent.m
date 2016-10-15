@@ -11,7 +11,7 @@
 @implementation MovementComponent
 
 - (instancetype)initWithScene:(Level1Scene *)scene
-                       sprite:(SKSpriteNode *)sprite
+                       sprite:(SKNode *)sprite
                    coordinate:(vector_int2)coordinate
                   destination:(vector_int2)destination {
     self = [super initWithScene:scene sprite:sprite coordinate:coordinate];

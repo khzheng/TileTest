@@ -159,14 +159,23 @@
     GKGridGraphNode *node = [self.openTowersGraph nodeAtGridPosition:coordinate];
     if (node) {
         GKEntity *towerEntity = [GKEntity entity];
-        SKSpriteNode *towerSprite = [SKSpriteNode spriteNodeWithImageNamed:@"Soldier"];
-        towerSprite.position = [self positionForTileCoordinate:CGPointMake(coordinate.x, coordinate.y)];
         
-        VisualComponent *visualComponent = [[VisualComponent alloc] initWithScene:self sprite:towerSprite coordinate:coordinate];
+        SKNode *sknode = [SKNode node];
+        sknode.position = [self positionForTileCoordinate:CGPointMake(coordinate.x, coordinate.y)];
+        
+        SKSpriteNode *towerSprite = [SKSpriteNode spriteNodeWithImageNamed:@"Soldier"];
+        [sknode addChild:towerSprite];
+        
+//        SKShapeNode *circle = [SKShapeNode shapeNodeWithCircleOfRadius:100];
+//        circle.strokeColor = [UIColor redColor];
+//        [sknode addChild:circle];
+        
+        VisualComponent *visualComponent = [[VisualComponent alloc] initWithScene:self sprite:sknode coordinate:coordinate];
         [towerEntity addComponent:visualComponent];
         
-        [self addChild:towerSprite];
+        [self addChild:visualComponent.sprite];
         
+        // remove node from grid
         [self.openTowersGraph removeNodes:@[node]];
     } else {
         NSLog(@"cannot place tower here: {%d, %d}", coordinate.x, coordinate.y);

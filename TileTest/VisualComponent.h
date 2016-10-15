@@ -13,11 +13,11 @@
 @interface VisualComponent : GKComponent
 
 @property (nonatomic, weak) Level1Scene *scene;
-@property (nonatomic, strong) SKSpriteNode *sprite;
+@property (nonatomic, strong) SKNode *sprite;
 @property (nonatomic, assign) vector_int2 coordinate;
 
 - (instancetype)initWithScene:(Level1Scene *)scene
-                       sprite:(SKSpriteNode *)sprite
+                       sprite:(SKNode *)sprite
                    coordinate:(vector_int2)coordinate;
 
 @end

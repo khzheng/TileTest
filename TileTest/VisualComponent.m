@@ -11,7 +11,7 @@
 @implementation VisualComponent
 
 - (instancetype)initWithScene:(Level1Scene *)scene
-                       sprite:(SKSpriteNode *)sprite
+                       sprite:(SKNode *)sprite
                    coordinate:(vector_int2)coordinate {
     self = [super init];
     if (self) {
