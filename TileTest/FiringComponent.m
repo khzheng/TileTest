@@ -13,6 +13,8 @@
 @interface FiringComponent()
 
 @property (nonatomic, strong) NSMutableArray *enemiesInRange;
+@property (nonatomic, strong) GKEntity *targetEnemy;
+@property (nonatomic, strong) NSTimer *attackTimer;
 
 @end
 
@@ -36,18 +38,40 @@
     
     if ([self.enemiesInRange count] > 0) {
         [self enemyInRange:self.enemiesInRange[0]];
+    } else {
+        [self.attackTimer invalidate];
+        self.attackTimer = nil;
     }
 }
 
-- (void)enemyInRange:(GKEntity *)enemy {
-    VisualComponent *enemyVc = (VisualComponent *)[enemy componentForClass:[VisualComponent class]];
+- (void)startAttackingTargetEnemy {
+    if (self.attackTimer) {
+        [self.attackTimer invalidate];
+        self.attackTimer = nil;
+    }
+    
+    // start tiemr to fire
+    [self attackTargetEnemy];
+    self.attackTimer = [NSTimer scheduledTimerWithTimeInterval:self.fireRate target:self selector:@selector(attackTargetEnemy) userInfo:nil repeats:YES];
+}
+
+- (void)attackTargetEnemy {
+    VisualComponent *enemyVc = (VisualComponent *)[self.targetEnemy componentForClass:[VisualComponent class]];
     SKNode *enemySprite = enemyVc.sprite;
     
     float angle = [self caluclateAngle:[self.sprite parent] node2:enemySprite];
     
     Level1Scene *scene = (Level1Scene *)self.sprite.scene;
     if (scene) {
-        [scene fireBulletFromEntity:self.entity towardsEnemy:enemy angle:angle];
+        [scene fireBulletFromEntity:self.entity towardsEnemy:self.targetEnemy angle:angle];
+    }
+}
+
+- (void)enemyInRange:(GKEntity *)enemy {
+    if (self.targetEnemy != enemy) {
+        self.targetEnemy = enemy;
+        
+        [self startAttackingTargetEnemy];
     }
 }
 

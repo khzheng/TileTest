@@ -203,7 +203,7 @@
         VisualComponent *visualComponent = [[VisualComponent alloc] initWithScene:self sprite:sknode bulletSprite:bulletSprite coordinate:coordinate];
         [towerEntity addComponent:visualComponent];
         
-        FiringComponent *firingComponent = [[FiringComponent alloc] initWithSprite:towerSprite damage:1 fireRate:1];
+        FiringComponent *firingComponent = [[FiringComponent alloc] initWithSprite:towerSprite damage:1 fireRate:0.5];
         [towerEntity addComponent:firingComponent];
         
         [self addChild:visualComponent.sprite];
@@ -241,6 +241,7 @@
 //    bulletSpriteCopy.zRotation = angle;
     [self addChild:bulletSpriteCopy];
     
+
     SKAction *trajAction = [SKAction moveTo:enemyPosition duration:0.2];
     [bulletSpriteCopy runAction:trajAction completion:^{
         [self removeChildrenInArray:@[bulletSpriteCopy]];
