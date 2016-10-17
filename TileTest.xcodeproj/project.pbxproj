@@ -14,6 +14,7 @@
 		EB3A40191DB2AF490091A642 /* VisualComponent.m in Sources */ = {isa = PBXBuildFile; fileRef = EB3A40181DB2AF490091A642 /* VisualComponent.m */; };
 		EB3A401C1DB2BB2E0091A642 /* MovementComponent.m in Sources */ = {isa = PBXBuildFile; fileRef = EB3A401B1DB2BB2E0091A642 /* MovementComponent.m */; };
 		EB3A401F1DB2CDC80091A642 /* FiringComponent.m in Sources */ = {isa = PBXBuildFile; fileRef = EB3A401E1DB2CDC80091A642 /* FiringComponent.m */; };
+		EB3A40221DB44AE70091A642 /* HealthComponent.m in Sources */ = {isa = PBXBuildFile; fileRef = EB3A40211DB44AE70091A642 /* HealthComponent.m */; };
 		EB8FA6071D989BF200F35211 /* MyTileSet.sks in Resources */ = {isa = PBXBuildFile; fileRef = EB8FA6061D989BF200F35211 /* MyTileSet.sks */; };
 		EB9A1BB21DA745A9008A71C0 /* Level1.sks in Resources */ = {isa = PBXBuildFile; fileRef = EB9A1BB11DA745A9008A71C0 /* Level1.sks */; };
 		EB9E4B531DA749AE00EC915E /* Level1Scene.m in Sources */ = {isa = PBXBuildFile; fileRef = EB9E4B521DA749AE00EC915E /* Level1Scene.m */; };
@@ -42,6 +43,8 @@
 		EB3A401B1DB2BB2E0091A642 /* MovementComponent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MovementComponent.m; sourceTree = "<group>"; };
 		EB3A401D1DB2CDC80091A642 /* FiringComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FiringComponent.h; sourceTree = "<group>"; };
 		EB3A401E1DB2CDC80091A642 /* FiringComponent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FiringComponent.m; sourceTree = "<group>"; };
+		EB3A40201DB44AE70091A642 /* HealthComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HealthComponent.h; sourceTree = "<group>"; };
+		EB3A40211DB44AE70091A642 /* HealthComponent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HealthComponent.m; sourceTree = "<group>"; };
 		EB8FA6061D989BF200F35211 /* MyTileSet.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = MyTileSet.sks; sourceTree = "<group>"; };
 		EB9A1BB11DA745A9008A71C0 /* Level1.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Level1.sks; sourceTree = "<group>"; };
 		EB9E4B511DA749AE00EC915E /* Level1Scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Level1Scene.h; sourceTree = "<group>"; };
@@ -121,6 +124,8 @@
 				EB3A401B1DB2BB2E0091A642 /* MovementComponent.m */,
 				EB3A401D1DB2CDC80091A642 /* FiringComponent.h */,
 				EB3A401E1DB2CDC80091A642 /* FiringComponent.m */,
+				EB3A40201DB44AE70091A642 /* HealthComponent.h */,
+				EB3A40211DB44AE70091A642 /* HealthComponent.m */,
 			);
 			path = TileTest;
 			sourceTree = "<group>";
@@ -216,6 +221,7 @@
 				EBBBB16B1D921D0E007BC0F7 /* AppDelegate.m in Sources */,
 				EBBBB16E1D921D0E007BC0F7 /* GameScene.m in Sources */,
 				EB3A40191DB2AF490091A642 /* VisualComponent.m in Sources */,
+				EB3A40221DB44AE70091A642 /* HealthComponent.m in Sources */,
 				EBBBB1681D921D0E007BC0F7 /* main.m in Sources */,
 				EB1477AC1DA0792C0056DBD1 /* TileData.m in Sources */,
 			);

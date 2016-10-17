@@ -11,6 +11,7 @@
 //#import "Enemy.h"
 #import "MovementComponent.h"
 #import "FiringComponent.h"
+#import "HealthComponent.h"
 
 @interface Level1Scene()
 
@@ -64,7 +65,7 @@
     
     self.towers = [NSMutableArray array];
     
-    [self drawGrid];
+//    [self drawGrid];
     
     // schedule enemies
     self.enemies = [NSMutableArray array];
@@ -85,6 +86,9 @@
         MovementComponent *movementComponent = [[MovementComponent alloc] initWithScene:self sprite:enemySprite coordinate:self.spawnNode.gridPosition destination:self.endNode.gridPosition];
         [enemy addComponent:movementComponent];
         
+        HealthComponent *healthComponent = [[HealthComponent alloc] initWithHealth:10];
+        [enemy addComponent:healthComponent];
+        
         [self.enemies addObject:enemy];
     }
     
@@ -92,7 +96,10 @@
     for (GKEntity *enemy in self.enemies) {
         SKAction *action = [SKAction runBlock:^{
             MovementComponent *mc = (MovementComponent *)[enemy componentForClass:[MovementComponent class]];
+            [mc.sprite addChild:[self healthBarForEntity:enemy]];
             [self addChild:mc.sprite];
+            
+            
             
             NSArray *path = [mc pathToDestination];
             [mc followPath:path];
@@ -104,6 +111,25 @@
     }
     
     [self runAction:[SKAction sequence:sequence]];
+}
+
+- (SKSpriteNode *)healthBarForEntity:(GKEntity *)entity {
+    MovementComponent *vc = (MovementComponent *)[entity componentForClass:[MovementComponent class]];
+    
+    CGRect spriteRect = vc.sprite.frame;
+    SKSpriteNode *healthBar = [SKSpriteNode spriteNodeWithColor:[UIColor greenColor] size:CGSizeMake(spriteRect.size.width, 12)];
+    
+    HealthComponent *hc = (HealthComponent *)[entity componentForClass:[HealthComponent class]];
+    if (hc) {
+        double remainingHealth = spriteRect.size.width * (float)(hc.health / hc.maxHealth);
+        if (remainingHealth < 0)
+            remainingHealth = 0;
+        
+        healthBar.size = CGSizeMake(remainingHealth, 1);
+        healthBar.position = CGPointMake(0, spriteRect.size.height/2.0 - healthBar.size.height);
+    }
+    
+    return healthBar;
 }
 
 - (GKEntity *)enemyForSprite:(SKNode *)sprite {
