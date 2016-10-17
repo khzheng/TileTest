@@ -9,6 +9,7 @@
 #import "FiringComponent.h"
 #import "VisualComponent.h"
 #import "Level1Scene.h"
+#import "HealthComponent.h"
 
 @interface FiringComponent()
 
@@ -39,8 +40,9 @@
     if ([self.enemiesInRange count] > 0) {
         [self enemyInRange:self.enemiesInRange[0]];
     } else {
-        [self.attackTimer invalidate];
-        self.attackTimer = nil;
+        self.targetEnemy = nil;
+        
+        [self stopAttacking];
     }
 }
 
@@ -55,15 +57,31 @@
     self.attackTimer = [NSTimer scheduledTimerWithTimeInterval:self.fireRate target:self selector:@selector(attackTargetEnemy) userInfo:nil repeats:YES];
 }
 
+- (void)stopAttacking {
+    [self.attackTimer invalidate];
+    self.attackTimer = nil;
+}
+
 - (void)attackTargetEnemy {
     VisualComponent *enemyVc = (VisualComponent *)[self.targetEnemy componentForClass:[VisualComponent class]];
     SKNode *enemySprite = enemyVc.sprite;
     
     float angle = [self caluclateAngle:[self.sprite parent] node2:enemySprite];
     
+    float damage = self.dmgPerBullet;
+    
+    HealthComponent *hc = (HealthComponent *)[self.targetEnemy componentForClass:[HealthComponent class]];
+    hc.health = hc.health - damage;
+    
     Level1Scene *scene = (Level1Scene *)self.sprite.scene;
     if (scene) {
+        
         [scene fireBulletFromEntity:self.entity towardsEnemy:self.targetEnemy angle:angle];
+        [scene updateHealthBarForEnemy:self.targetEnemy];
+    }
+    
+    if (hc.health <= 0) {
+        [self removeEnemy:self.targetEnemy];
     }
 }
 
@@ -72,6 +90,22 @@
         self.targetEnemy = enemy;
         
         [self startAttackingTargetEnemy];
+    }
+}
+
+- (void)removeEnemy:(GKEntity *)enemy {
+    int index = 0;
+    
+    for (GKEntity *e in self.enemiesInRange) {
+        if (e == enemy) {
+            [self.enemiesInRange removeObjectAtIndex:index];
+            
+            if (e == self.targetEnemy)
+                self.targetEnemy = nil;
+            
+            break;
+        }
+        index++;
     }
 }
 
@@ -87,13 +121,11 @@
 }
 
 - (void)enemyEnteredTowerRange:(GKEntity *)enemy {
-//    NSLog(@"enemyentered");
     [self.enemiesInRange addObject:enemy];
 }
 
 - (void)enemyExitedTowerRange:(GKEntity *)enemy {
-//    NSLog(@"ewnenmyexited");
-    [self.enemiesInRange removeObject:enemy];
+    [self removeEnemy:enemy];
 }
 
 @end

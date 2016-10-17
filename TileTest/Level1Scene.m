@@ -99,8 +99,6 @@
             [mc.sprite addChild:[self healthBarForEntity:enemy]];
             [self addChild:mc.sprite];
             
-            
-            
             NSArray *path = [mc pathToDestination];
             [mc followPath:path];
         }];
@@ -125,6 +123,7 @@
         if (remainingHealth < 0)
             remainingHealth = 0;
         
+        healthBar.name = @"HealthBar";
         healthBar.size = CGSizeMake(remainingHealth, 1);
         healthBar.position = CGPointMake(0, spriteRect.size.height/2.0 - healthBar.size.height);
     }
@@ -229,7 +228,7 @@
         VisualComponent *visualComponent = [[VisualComponent alloc] initWithScene:self sprite:sknode bulletSprite:bulletSprite coordinate:coordinate];
         [towerEntity addComponent:visualComponent];
         
-        FiringComponent *firingComponent = [[FiringComponent alloc] initWithSprite:towerSprite damage:1 fireRate:0.5];
+        FiringComponent *firingComponent = [[FiringComponent alloc] initWithSprite:towerSprite damage:3 fireRate:0.5];
         [towerEntity addComponent:firingComponent];
         
         [self addChild:visualComponent.sprite];
@@ -272,6 +271,42 @@
     [bulletSpriteCopy runAction:trajAction completion:^{
         [self removeChildrenInArray:@[bulletSpriteCopy]];
     }];
+}
+
+- (void)updateHealthBarForEnemy:(GKEntity *)enemy {
+    SKNode *enemyNode = [(MovementComponent *)[enemy componentForClass:[MovementComponent class]] sprite];
+    SKSpriteNode *healthBar = (SKSpriteNode *)[enemyNode childNodeWithName:@"HealthBar"];
+    if (healthBar) {
+        SKSpriteNode *newHealthBar = [self healthBarForEntity:enemy];
+        [enemyNode removeChildrenInArray:@[healthBar]];
+        
+        HealthComponent *hc = (HealthComponent *)[enemy componentForClass:[HealthComponent class]];
+        
+        if (hc.health > 0)
+            [enemyNode addChild:newHealthBar];
+        else
+            [self removeEnemy:enemy];
+    }
+}
+
+- (void)removeEnemy:(GKEntity *)enemy {
+    int index = 0;
+    SKNode *node = nil;
+    for (GKEntity *e in self.enemies) {
+        if (e == enemy) {
+            node = [(MovementComponent *)[e componentForClass:[MovementComponent class]] sprite];
+            break;
+        }
+        index++;
+    }
+    
+    if (node) {
+        [node removeAllActions];
+        
+        [self.enemies removeObjectAtIndex:index];
+        
+        [node removeFromParent];
+    }
 }
 
 - (void)update:(NSTimeInterval)currentTime {
