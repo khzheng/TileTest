@@ -16,5 +16,6 @@
 - (CGPoint)positionForTileCoordinate:(CGPoint)coordinate;
 - (void)fireBulletFromEntity:(GKEntity *)entity towardsEnemy:(GKEntity *)enemy angle:(float)angle;
 - (void)updateHealthBarForEnemy:(GKEntity *)enemy;
+- (void)removeEnemy:(GKEntity *)enemy;
 
 @end

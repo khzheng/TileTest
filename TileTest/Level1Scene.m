@@ -73,7 +73,7 @@
 }
 
 - (void)createEnemies {
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 20; i++) {
         GKEntity *enemy = [GKEntity entity];
         SKSpriteNode *enemySprite = [SKSpriteNode spriteNodeWithImageNamed:@"Spaceship"];
         enemySprite.size = self.road.tileSize;
@@ -223,7 +223,7 @@
         sknode.physicsBody.contactTestBitMask = 2;
         sknode.physicsBody.collisionBitMask = 0;
         
-        SKSpriteNode *bulletSprite = [SKSpriteNode spriteNodeWithColor:[UIColor yellowColor] size:CGSizeMake(10, 10)];
+        SKSpriteNode *bulletSprite = [SKSpriteNode spriteNodeWithColor:[UIColor blackColor] size:CGSizeMake(10, 10)];
         
         VisualComponent *visualComponent = [[VisualComponent alloc] initWithScene:self sprite:sknode bulletSprite:bulletSprite coordinate:coordinate];
         [towerEntity addComponent:visualComponent];
@@ -267,7 +267,7 @@
     [self addChild:bulletSpriteCopy];
     
 
-    SKAction *trajAction = [SKAction moveTo:enemyPosition duration:0.2];
+    SKAction *trajAction = [SKAction moveTo:enemyPosition duration:0.1];
     [bulletSpriteCopy runAction:trajAction completion:^{
         [self removeChildrenInArray:@[bulletSpriteCopy]];
     }];

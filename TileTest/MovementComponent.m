@@ -41,7 +41,9 @@
         [sequence addObjectsFromArray:@[moveAction, updateAction]];
     }
     
-    [self.sprite runAction:[SKAction sequence:sequence]];
+    [self.sprite runAction:[SKAction sequence:sequence] completion:^{
+        [self.scene removeEnemy:self.entity];
+    }];
 }
 
 @end
