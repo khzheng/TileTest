@@ -65,7 +65,7 @@
     
     self.towers = [NSMutableArray array];
     
-//    [self drawGrid];
+    [self drawGrid];
     
     // schedule enemies
     self.enemies = [NSMutableArray array];
@@ -195,8 +195,23 @@
     UITouch *touch = [touches anyObject];
     CGPoint touchLocation = [touch locationInNode:self];
     CGPoint tilePosition = [self tileCoordinateForPosition:touchLocation];
-    
-    [self createTowerAtCoordinate:(vector_int2){tilePosition.x, tilePosition.y}];
+    vector_int2 coordinate = (vector_int2){tilePosition.x, tilePosition.y};
+
+    GKGridGraphNode *node = [self.openTowersGraph nodeAtGridPosition:coordinate];
+    if (node) { // can place tower
+        [self createTowerAtCoordinate:coordinate];
+    } else {    // can't place tower
+        // was a tower selected?
+        for (GKEntity *tower in self.towers) {
+            VisualComponent *vc = (VisualComponent *)[tower componentForClass:[VisualComponent class]];
+            if (vc) {
+                CGRect spriteRect = CGRectMake(vc.sprite.frame.origin.x - self.road.tileSize.width/2.0, vc.sprite.frame.origin.y - self.road.tileSize.height/2.0, self.road.tileSize.width, self.road.tileSize.height);
+                if (CGRectContainsPoint(spriteRect, touchLocation)) {
+                    NSLog(@"selectedTower");
+                }
+            }
+        }
+    }
 }
 
 - (void)createTowerAtCoordinate:(vector_int2)coordinate {
