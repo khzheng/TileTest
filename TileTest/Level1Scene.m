@@ -15,6 +15,7 @@
 
 @interface Level1Scene()
 
+@property (nonatomic, strong) SKCameraNode *cameraNode;
 @property (nonatomic, strong) SKTileMapNode *road;
 @property (nonatomic, strong) SKTileMapNode *grass;
 
@@ -33,6 +34,16 @@
 @implementation Level1Scene
 
 - (void)didMoveToView:(SKView *)view {
+    self.cameraNode = [[SKCameraNode alloc] init];
+    self.camera = self.cameraNode;
+    [self addChild:self.cameraNode];
+    self.cameraNode.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMidY(self.frame));
+    
+    UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureAction:)];
+    panRecognizer.minimumNumberOfTouches = 1;
+    panRecognizer.maximumNumberOfTouches = 1;
+    [view addGestureRecognizer:panRecognizer];
+    
     // load scene nodes
     self.road = (SKTileMapNode *)[self childNodeWithName:@"road"];
     self.grass = (SKTileMapNode *)[self childNodeWithName:@"grass"];
@@ -70,6 +81,16 @@
     // schedule enemies
     self.enemies = [NSMutableArray array];
     [self createEnemies];
+}
+
+- (void)panGestureAction:(UIPanGestureRecognizer *)panRecognizer {
+    CGPoint translatedPoint = [panRecognizer translationInView:self.view];
+    CGPoint cameraPosition = self.cameraNode.position;
+    
+    self.cameraNode.position = CGPointMake(cameraPosition.x - translatedPoint.x, cameraPosition.y + translatedPoint.y);
+    
+    // reset
+    [panRecognizer setTranslation:CGPointZero inView:panRecognizer.view];
 }
 
 - (void)createEnemies {
@@ -191,12 +212,15 @@
     }
 }
 
-- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+//- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+//}
+
+- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     UITouch *touch = [touches anyObject];
     CGPoint touchLocation = [touch locationInNode:self];
     CGPoint tilePosition = [self tileCoordinateForPosition:touchLocation];
     vector_int2 coordinate = (vector_int2){tilePosition.x, tilePosition.y};
-
+    
     GKGridGraphNode *node = [self.openTowersGraph nodeAtGridPosition:coordinate];
     if (node) { // can place tower
         [self createTowerAtCoordinate:coordinate];
@@ -230,7 +254,7 @@
         float radius = 100;
         SKShapeNode *circle = [SKShapeNode shapeNodeWithCircleOfRadius:radius];
         circle.strokeColor = [UIColor redColor];
-        [sknode addChild:circle];
+//        [sknode addChild:circle];
         
         sknode.physicsBody = [SKPhysicsBody bodyWithCircleOfRadius:radius];
         sknode.physicsBody.dynamic = NO;
