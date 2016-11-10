@@ -44,6 +44,9 @@
     panRecognizer.maximumNumberOfTouches = 1;
     [view addGestureRecognizer:panRecognizer];
     
+    UIPinchGestureRecognizer *pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(pinchGestureRecognizerAction:)];
+    [view addGestureRecognizer:pinchRecognizer];
+    
     // load scene nodes
     self.road = (SKTileMapNode *)[self childNodeWithName:@"road"];
     self.grass = (SKTileMapNode *)[self childNodeWithName:@"grass"];
@@ -83,14 +86,10 @@
     [self createEnemies];
 }
 
-- (void)panGestureAction:(UIPanGestureRecognizer *)panRecognizer {
-    CGPoint translatedPoint = [panRecognizer translationInView:self.view];
-    CGPoint cameraPosition = self.cameraNode.position;
-    
-    self.cameraNode.position = CGPointMake(cameraPosition.x - translatedPoint.x, cameraPosition.y + translatedPoint.y);
-    
-    // reset
-    [panRecognizer setTranslation:CGPointZero inView:panRecognizer.view];
+- (void)update:(NSTimeInterval)currentTime {
+    for (GKEntity *tower in self.towers) {
+        [tower updateWithDeltaTime:currentTime];
+    }
 }
 
 - (void)createEnemies {
@@ -212,32 +211,6 @@
     }
 }
 
-//- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-//}
-
-- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    UITouch *touch = [touches anyObject];
-    CGPoint touchLocation = [touch locationInNode:self];
-    CGPoint tilePosition = [self tileCoordinateForPosition:touchLocation];
-    vector_int2 coordinate = (vector_int2){tilePosition.x, tilePosition.y};
-    
-    GKGridGraphNode *node = [self.openTowersGraph nodeAtGridPosition:coordinate];
-    if (node) { // can place tower
-        [self createTowerAtCoordinate:coordinate];
-    } else {    // can't place tower
-        // was a tower selected?
-        for (GKEntity *tower in self.towers) {
-            VisualComponent *vc = (VisualComponent *)[tower componentForClass:[VisualComponent class]];
-            if (vc) {
-                CGRect spriteRect = CGRectMake(vc.sprite.frame.origin.x - self.road.tileSize.width/2.0, vc.sprite.frame.origin.y - self.road.tileSize.height/2.0, self.road.tileSize.width, self.road.tileSize.height);
-                if (CGRectContainsPoint(spriteRect, touchLocation)) {
-                    NSLog(@"selectedTower");
-                }
-            }
-        }
-    }
-}
-
 - (void)createTowerAtCoordinate:(vector_int2)coordinate {
     // is the tile eligible for a tower?
     GKGridGraphNode *node = [self.openTowersGraph nodeAtGridPosition:coordinate];
@@ -348,12 +321,6 @@
     }
 }
 
-- (void)update:(NSTimeInterval)currentTime {
-    for (GKEntity *tower in self.towers) {
-        [tower updateWithDeltaTime:currentTime];
-    }
-}
-
 - (void)contactWithNodeA:(SKNode *)nodeA nodeB:(SKNode *)nodeB entered:(BOOL)entered {
     GKEntity *enemy;
     GKEntity *tower;
@@ -374,12 +341,72 @@
     }
 }
 
+#pragma mark - SKPhysicsContactDelegate
+
 - (void)didBeginContact:(SKPhysicsContact *)contact {
     [self contactWithNodeA:contact.bodyA.node nodeB:contact.bodyB.node entered:YES];
 }
 
 - (void)didEndContact:(SKPhysicsContact *)contact {
     [self contactWithNodeA:contact.bodyA.node nodeB:contact.bodyB.node entered:NO];
+}
+
+#pragma mark - UITouch events
+
+//- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+//}
+
+- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    UITouch *touch = [touches anyObject];
+    CGPoint touchLocation = [touch locationInNode:self];
+    CGPoint tilePosition = [self tileCoordinateForPosition:touchLocation];
+    vector_int2 coordinate = (vector_int2){tilePosition.x, tilePosition.y};
+    
+    GKGridGraphNode *node = [self.openTowersGraph nodeAtGridPosition:coordinate];
+    if (node) { // can place tower
+        [self createTowerAtCoordinate:coordinate];
+    } else {    // can't place tower
+        // was a tower selected?
+        for (GKEntity *tower in self.towers) {
+            VisualComponent *vc = (VisualComponent *)[tower componentForClass:[VisualComponent class]];
+            if (vc) {
+                CGRect spriteRect = CGRectMake(vc.sprite.frame.origin.x - self.road.tileSize.width/2.0, vc.sprite.frame.origin.y - self.road.tileSize.height/2.0, self.road.tileSize.width, self.road.tileSize.height);
+                if (CGRectContainsPoint(spriteRect, touchLocation)) {
+                    NSLog(@"selectedTower");
+                }
+            }
+        }
+    }
+}
+
+#pragma mark - UIGestureRecognizer events
+
+- (void)panGestureAction:(UIPanGestureRecognizer *)panRecognizer {
+    CGPoint translatedPoint = [panRecognizer translationInView:self.view];
+    CGPoint cameraPosition = self.cameraNode.position;
+    
+    self.cameraNode.position = CGPointMake(cameraPosition.x - translatedPoint.x, cameraPosition.y + translatedPoint.y);
+    
+    // reset
+    [panRecognizer setTranslation:CGPointZero inView:panRecognizer.view];
+}
+
+- (void)pinchGestureRecognizerAction:(UIPinchGestureRecognizer *)pinchRecognizer {
+    CGPoint locationInView = [pinchRecognizer locationInView:self.view];
+    CGPoint location = [self convertPointFromView:locationInView];
+    
+    if (pinchRecognizer.state == UIGestureRecognizerStateChanged) {
+        float deltaScale = (pinchRecognizer.scale - 1.0) * 2;
+        float convertedScale = pinchRecognizer.scale - deltaScale;
+        float newScale = self.cameraNode.xScale * convertedScale;
+        [self.cameraNode setScale:newScale];
+        
+        CGPoint locationAfterScale = [self convertPointFromView:locationInView];
+        CGPoint locationDelta = CGPointMake(location.x - locationAfterScale.x, location.y - locationAfterScale.y);
+        CGPoint newPoint = CGPointMake(self.cameraNode.position.x + locationDelta.x, self.cameraNode.position.y + locationDelta.y);
+        self.cameraNode.position = newPoint;
+        pinchRecognizer.scale = 1.0;
+    }
 }
 
 @end
