@@ -74,12 +74,12 @@
     self.physicsWorld.contactDelegate = self;
     self.physicsWorld.gravity = CGVectorMake(0, 0);
     
-    self.spawnNode = [self.graph nodeAtGridPosition:(vector_int2){5,15}];
-    self.endNode = [self.graph nodeAtGridPosition:(vector_int2){20,5}];
+    self.spawnNode = [self.graph nodeAtGridPosition:(vector_int2){7,23}];
+    self.endNode = [self.graph nodeAtGridPosition:(vector_int2){23,0}];
     
     self.towers = [NSMutableArray array];
     
-    [self drawGrid];
+//    [self drawGrid];
     
     // schedule enemies
     self.enemies = [NSMutableArray array];
@@ -118,6 +118,7 @@
             MovementComponent *mc = (MovementComponent *)[enemy componentForClass:[MovementComponent class]];
             [mc.sprite addChild:[self healthBarForEntity:enemy]];
             [self addChild:mc.sprite];
+//            [self.road addChild:mc.sprite];
             
             NSArray *path = [mc pathToDestination];
             [mc followPath:path];
@@ -354,6 +355,10 @@
 #pragma mark - UITouch events
 
 //- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+//    UITouch *touch = [touches anyObject];
+//    CGPoint touchLocation = [touch locationInNode:self];
+//    CGPoint tilePosition = [self tileCoordinateForPosition:touchLocation];
+//    NSLog(@"touched: %@", NSStringFromCGPoint(tilePosition));
 //}
 
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
