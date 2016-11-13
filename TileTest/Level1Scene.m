@@ -83,7 +83,17 @@
     
     // schedule enemies
     self.enemies = [NSMutableArray array];
-    [self createEnemies];
+    
+    [self addChild:[self playButtonNode]];
+}
+
+- (SKSpriteNode *)playButtonNode {
+    SKSpriteNode *playNode = [SKSpriteNode spriteNodeWithImageNamed:@"play-button.png"];
+    playNode.position = [self positionForTileCoordinate:CGPointMake(7, 21)];
+    playNode.name = @"playButtonNode";
+    playNode.size = CGSizeMake(240, 90);
+    playNode.zPosition = CGFLOAT_MAX;
+    return playNode;
 }
 
 - (void)update:(NSTimeInterval)currentTime {
@@ -118,7 +128,6 @@
             MovementComponent *mc = (MovementComponent *)[enemy componentForClass:[MovementComponent class]];
             [mc.sprite addChild:[self healthBarForEntity:enemy]];
             [self addChild:mc.sprite];
-//            [self.road addChild:mc.sprite];
             
             NSArray *path = [mc pathToDestination];
             [mc followPath:path];
@@ -320,6 +329,10 @@
         
         [node removeFromParent];
     }
+    
+    if ([self.enemies count] <= 0) {
+        [self addChild:[self playButtonNode]];
+    }
 }
 
 - (void)contactWithNodeA:(SKNode *)nodeA nodeB:(SKNode *)nodeB entered:(BOOL)entered {
@@ -354,12 +367,19 @@
 
 #pragma mark - UITouch events
 
-//- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-//    UITouch *touch = [touches anyObject];
-//    CGPoint touchLocation = [touch locationInNode:self];
-//    CGPoint tilePosition = [self tileCoordinateForPosition:touchLocation];
-//    NSLog(@"touched: %@", NSStringFromCGPoint(tilePosition));
-//}
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    UITouch *touch = [touches anyObject];
+    CGPoint touchLocation = [touch locationInNode:self];
+    CGPoint tilePosition = [self tileCoordinateForPosition:touchLocation];
+    SKNode *node = [self nodeAtPoint:touchLocation];
+    NSLog(@"touched: %@", NSStringFromCGPoint(tilePosition));
+    
+    if ([node.name isEqualToString:@"playButtonNode"]) {
+        [self createEnemies];
+        
+        [node removeFromParent];
+    }
+}
 
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     UITouch *touch = [touches anyObject];
