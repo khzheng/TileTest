@@ -74,8 +74,8 @@
     self.physicsWorld.contactDelegate = self;
     self.physicsWorld.gravity = CGVectorMake(0, 0);
     
-    self.spawnNode = [self.graph nodeAtGridPosition:(vector_int2){7,23}];
-    self.endNode = [self.graph nodeAtGridPosition:(vector_int2){23,0}];
+    self.spawnNode = [self.graph nodeAtGridPosition:(vector_int2){6,23}];
+    self.endNode = [self.graph nodeAtGridPosition:(vector_int2){31,0}];
     
     self.towers = [NSMutableArray array];
     
@@ -89,7 +89,7 @@
 
 - (SKSpriteNode *)playButtonNode {
     SKSpriteNode *playNode = [SKSpriteNode spriteNodeWithImageNamed:@"play-button.png"];
-    playNode.position = [self positionForTileCoordinate:CGPointMake(7, 21)];
+    playNode.position = [self positionForTileCoordinate:CGPointMake(self.spawnNode.gridPosition.x, self.spawnNode.gridPosition.y)];
     playNode.name = @"playButtonNode";
     playNode.size = CGSizeMake(240, 90);
     playNode.zPosition = CGFLOAT_MAX;
