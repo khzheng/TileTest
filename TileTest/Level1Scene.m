@@ -74,7 +74,7 @@
     self.physicsWorld.contactDelegate = self;
     self.physicsWorld.gravity = CGVectorMake(0, 0);
     
-    self.spawnNode = [self.graph nodeAtGridPosition:(vector_int2){6,23}];
+    self.spawnNode = [self.graph nodeAtGridPosition:(vector_int2){6,21}];
     self.endNode = [self.graph nodeAtGridPosition:(vector_int2){31,0}];
     
     self.towers = [NSMutableArray array];
@@ -231,13 +231,53 @@
         sknode.name = @"Tower";
         sknode.position = [self positionForTileCoordinate:CGPointMake(coordinate.x, coordinate.y)];
         
-        SKSpriteNode *towerSprite = [SKSpriteNode spriteNodeWithImageNamed:@"Soldier"];
+        SKSpriteNode *towerSprite = [SKSpriteNode spriteNodeWithImageNamed:@"archer"];
+        // let's determine direction tower should be facing
+        // check all sides, if 1 side is a road, then that should be the direction
+        float radians = 0;
+        CGPoint topCoor = CGPointMake(coordinate.x, coordinate.y + 1);
+        CGPoint bottomCoor = CGPointMake(coordinate.x, coordinate.y - 1);
+        CGPoint rightCoor = CGPointMake(coordinate.x + 1, coordinate.y);
+        CGPoint leftCoor = CGPointMake(coordinate.x - 1, coordinate.y);
+        SKTileDefinition *topTile = [self.road tileDefinitionAtColumn:topCoor.x row:topCoor.y];
+        SKTileDefinition *bottomTile = [self.road tileDefinitionAtColumn:bottomCoor.x row:bottomCoor.y];
+        SKTileDefinition *rightTile = [self.road tileDefinitionAtColumn:rightCoor.x row:rightCoor.y];
+        SKTileDefinition *leftTile = [self.road tileDefinitionAtColumn:leftCoor.x row:leftCoor.y];
+        NSMutableArray *roadCoors = [NSMutableArray array];
+        if (topTile) [roadCoors addObject:[NSValue valueWithCGPoint:topCoor]];
+        if (bottomTile) [roadCoors addObject:[NSValue valueWithCGPoint:bottomCoor]];
+        if (rightTile) [roadCoors addObject:[NSValue valueWithCGPoint:rightCoor]];
+        if (leftTile) [roadCoors addObject:[NSValue valueWithCGPoint:leftCoor]];
+        if ([roadCoors count] == 1) {
+            CGPoint coor = [[roadCoors lastObject] CGPointValue];
+            CGPoint heading = CGPointMake(coor.x - coordinate.x, coor.y - coordinate.y);
+            if (heading.y == 1) radians = 0;
+            else if (heading.y == -1) radians = M_PI;
+            else if (heading.x == 1) radians = -M_PI/2.0;
+            else if (heading.x == -1) radians = M_PI/2.0;
+        } else if ([roadCoors count] == 0) {
+            radians = 0;
+        } else {    // multiple roads, just pick the first one
+            // TODO: add a heading picker
+            CGPoint coor = [roadCoors[0] CGPointValue];
+            CGPoint heading = CGPointMake(coor.x - coordinate.x, coor.y - coordinate.y);
+            if (heading.y == 1) radians = 0;
+            else if (heading.y == -1) radians = M_PI;
+            else if (heading.x == 1) radians = -M_PI/2.0;
+            else if (heading.x == -1) radians = M_PI/2.0;
+        }
+        
+        towerSprite.zRotation = radians;
         [sknode addChild:towerSprite];
         
         float radius = 100;
         SKShapeNode *circle = [SKShapeNode shapeNodeWithCircleOfRadius:radius];
         circle.strokeColor = [UIColor redColor];
 //        [sknode addChild:circle];
+        
+//        SKShapeNode *rectangle = [SKShapeNode shapeNodeWithRect:CGRectMake(-32, 32, 64, radius)];
+//        rectangle.strokeColor = [UIColor redColor];
+//        [sknode addChild:rectangle];
         
         sknode.physicsBody = [SKPhysicsBody bodyWithCircleOfRadius:radius];
         sknode.physicsBody.dynamic = NO;
