@@ -31,6 +31,10 @@
 
 @end
 
+UInt32 TowerCategory = 0x1 << 1;
+UInt32 EnemyCategory = 0x1 << 2;
+UInt32 BulletCategory = 0x1 << 3;
+
 @implementation Level1Scene
 
 - (void)didMoveToView:(SKView *)view {
@@ -106,11 +110,12 @@
     for (int i = 0; i < 20; i++) {
         GKEntity *enemy = [GKEntity entity];
         SKSpriteNode *enemySprite = [SKSpriteNode spriteNodeWithImageNamed:@"Spaceship"];
+        enemySprite.name = @"Enemy";
         enemySprite.size = self.road.tileSize;
         enemySprite.position = [self positionForTileCoordinate:CGPointMake(spawnPoint.x, spawnPoint.y)];
         enemySprite.physicsBody = [SKPhysicsBody bodyWithCircleOfRadius:enemySprite.size.width/2];
-        enemySprite.physicsBody.categoryBitMask = 2;
-        enemySprite.physicsBody.contactTestBitMask = 1;
+        enemySprite.physicsBody.categoryBitMask = EnemyCategory;
+        enemySprite.physicsBody.contactTestBitMask = TowerCategory;
         enemySprite.physicsBody.collisionBitMask = 0;
         
         MovementComponent *movementComponent = [[MovementComponent alloc] initWithScene:self sprite:enemySprite coordinate:spawnPoint destination:destination];
@@ -226,8 +231,8 @@
         
         sknode.physicsBody = [SKPhysicsBody bodyWithCircleOfRadius:radius];
         sknode.physicsBody.dynamic = NO;
-        sknode.physicsBody.categoryBitMask = 1;
-        sknode.physicsBody.contactTestBitMask = 2;
+        sknode.physicsBody.categoryBitMask = TowerCategory;
+        sknode.physicsBody.contactTestBitMask = EnemyCategory;
         sknode.physicsBody.collisionBitMask = 0;
         
         SKSpriteNode *bulletSprite = [SKSpriteNode spriteNodeWithColor:[UIColor blackColor] size:CGSizeMake(10, 10)];
@@ -347,9 +352,14 @@
     
     SKSpriteNode *bulletSprite = entityVc.bulletSprite;
     SKSpriteNode *bulletSpriteCopy = [bulletSprite copy];
+    bulletSpriteCopy.name = @"Bullet";
     bulletSpriteCopy.position = entityPosition;
     bulletSpriteCopy.zPosition = 1;    // position bullet behind tower?
     //    bulletSpriteCopy.zRotation = angle;
+    bulletSpriteCopy.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:entityVc.bulletSprite.size];
+    bulletSpriteCopy.physicsBody.categoryBitMask = BulletCategory;
+    bulletSpriteCopy.physicsBody.contactTestBitMask = EnemyCategory;
+    bulletSpriteCopy.physicsBody.collisionBitMask = 0;
     [self addChild:bulletSpriteCopy];
     
     float range = 400.0;
@@ -410,23 +420,32 @@
 }
 
 - (void)contactWithNodeA:(SKNode *)nodeA nodeB:(SKNode *)nodeB entered:(BOOL)entered {
-    GKEntity *enemy;
-    GKEntity *tower;
-    if ([[nodeA name] isEqualToString:@"Tower"]) {          // nodeA is tower
-        enemy = [self enemyForSprite:nodeB];
-        tower = [self towerForSprite:nodeA];
-    } else if ([[nodeB name] isEqualToString:@"Tower"]) {   // nodeB is tower
-        enemy = [self enemyForSprite:nodeA];
-        tower = [self towerForSprite:nodeB];
+    if (([[nodeA name] isEqualToString:@"Tower"] && [[nodeB name] isEqualToString:@"Enemy"]) ||
+        ([[nodeA name] isEqualToString:@"Enemy"] && [[nodeB name] isEqualToString:@"Tower"])) {
+        
+        GKEntity *enemy;
+        GKEntity *tower;
+        if ([[nodeA name] isEqualToString:@"Tower"]) {          // nodeA is tower
+            enemy = [self enemyForSprite:nodeB];
+            tower = [self towerForSprite:nodeA];
+        } else if ([[nodeB name] isEqualToString:@"Tower"]) {   // nodeB is tower
+            enemy = [self enemyForSprite:nodeA];
+            tower = [self towerForSprite:nodeB];
+        }
+        
+        if (enemy) {
+            FiringComponent *fc = (FiringComponent *)[tower componentForClass:[FiringComponent class]];
+            if (entered)
+                [fc enemyEnteredTowerRange:enemy];
+            else
+                [fc enemyExitedTowerRange:enemy];
+        }
+    } else if (([[nodeA name] isEqualToString:@"Bullet"] && [[nodeB name] isEqualToString:@"Enemy"]) ||
+               ([[nodeA name] isEqualToString:@"Enemy"] && [[nodeB name] isEqualToString:@"Bullet"])) {
+        NSLog(@"bullet hit enemy");
+    } else {
     }
     
-    if (enemy) {
-        FiringComponent *fc = (FiringComponent *)[tower componentForClass:[FiringComponent class]];
-        if (entered)
-            [fc enemyEnteredTowerRange:enemy];
-        else
-            [fc enemyExitedTowerRange:enemy];
-    }
 }
 
 #pragma mark - UITouch events
