@@ -74,7 +74,7 @@
     self.physicsWorld.contactDelegate = self;
     self.physicsWorld.gravity = CGVectorMake(0, 0);
     
-    self.spawnNode = [self.graph nodeAtGridPosition:(vector_int2){6,21}];
+    self.spawnNode = [self.graph nodeAtGridPosition:(vector_int2){6,23}];
     self.endNode = [self.graph nodeAtGridPosition:(vector_int2){31,0}];
     
     self.towers = [NSMutableArray array];
@@ -89,7 +89,7 @@
 
 - (SKSpriteNode *)playButtonNode {
     SKSpriteNode *playNode = [SKSpriteNode spriteNodeWithImageNamed:@"play-button.png"];
-    playNode.position = [self positionForTileCoordinate:CGPointMake(self.spawnNode.gridPosition.x, self.spawnNode.gridPosition.y)];
+    playNode.position = [self positionForTileCoordinate:CGPointMake(self.spawnNode.gridPosition.x, self.spawnNode.gridPosition.y - 2)];
     playNode.name = @"playButtonNode";
     playNode.size = CGSizeMake(240, 90);
     playNode.zPosition = CGFLOAT_MAX;
@@ -102,18 +102,18 @@
     }
 }
 
-- (void)createEnemies {
+- (void)createEnemiesAtSpawnPoint:(vector_int2)spawnPoint moveToDestination:(vector_int2)destination {
     for (int i = 0; i < 20; i++) {
         GKEntity *enemy = [GKEntity entity];
         SKSpriteNode *enemySprite = [SKSpriteNode spriteNodeWithImageNamed:@"Spaceship"];
         enemySprite.size = self.road.tileSize;
-        enemySprite.position = [self positionForTileCoordinate:CGPointMake(self.spawnNode.gridPosition.x, self.spawnNode.gridPosition.y)];
+        enemySprite.position = [self positionForTileCoordinate:CGPointMake(spawnPoint.x, spawnPoint.y)];
         enemySprite.physicsBody = [SKPhysicsBody bodyWithCircleOfRadius:enemySprite.size.width/2];
         enemySprite.physicsBody.categoryBitMask = 2;
         enemySprite.physicsBody.contactTestBitMask = 1;
         enemySprite.physicsBody.collisionBitMask = 0;
         
-        MovementComponent *movementComponent = [[MovementComponent alloc] initWithScene:self sprite:enemySprite coordinate:self.spawnNode.gridPosition destination:self.endNode.gridPosition];
+        MovementComponent *movementComponent = [[MovementComponent alloc] initWithScene:self sprite:enemySprite coordinate:spawnPoint destination:destination];
         [enemy addComponent:movementComponent];
         
         HealthComponent *healthComponent = [[HealthComponent alloc] initWithHealth:10];
@@ -139,6 +139,113 @@
     }
     
     [self runAction:[SKAction sequence:sequence]];
+}
+
+- (void)removeEnemy:(GKEntity *)enemy {
+    int index = 0;
+    SKNode *node = nil;
+    for (GKEntity *e in self.enemies) {
+        if (e == enemy) {
+            node = [(MovementComponent *)[e componentForClass:[MovementComponent class]] sprite];
+            break;
+        }
+        index++;
+    }
+    
+    if (node) {
+        [node removeAllActions];
+        
+        [self.enemies removeObjectAtIndex:index];
+        
+        [node removeFromParent];
+    }
+    
+    if ([self.enemies count] <= 0) {
+        [self addChild:[self playButtonNode]];
+    }
+}
+
+- (void)createTowerAtCoordinate:(vector_int2)coordinate {
+    // is the tile eligible for a tower?
+    GKGridGraphNode *node = [self.openTowersGraph nodeAtGridPosition:coordinate];
+    if (node) {
+        GKEntity *towerEntity = [GKEntity entity];
+        
+        SKNode *sknode = [SKNode node];
+        sknode.name = @"Tower";
+        sknode.position = [self positionForTileCoordinate:CGPointMake(coordinate.x, coordinate.y)];
+        
+        SKSpriteNode *towerSprite = [SKSpriteNode spriteNodeWithImageNamed:@"archer"];
+        // let's determine direction tower should be facing
+        // check all sides, if 1 side is a road, then that should be the direction
+        float radians = 0;
+        CGPoint topCoor = CGPointMake(coordinate.x, coordinate.y + 1);
+        CGPoint bottomCoor = CGPointMake(coordinate.x, coordinate.y - 1);
+        CGPoint rightCoor = CGPointMake(coordinate.x + 1, coordinate.y);
+        CGPoint leftCoor = CGPointMake(coordinate.x - 1, coordinate.y);
+        SKTileDefinition *topTile = [self.road tileDefinitionAtColumn:topCoor.x row:topCoor.y];
+        SKTileDefinition *bottomTile = [self.road tileDefinitionAtColumn:bottomCoor.x row:bottomCoor.y];
+        SKTileDefinition *rightTile = [self.road tileDefinitionAtColumn:rightCoor.x row:rightCoor.y];
+        SKTileDefinition *leftTile = [self.road tileDefinitionAtColumn:leftCoor.x row:leftCoor.y];
+        NSMutableArray *roadCoors = [NSMutableArray array];
+        if (topTile) [roadCoors addObject:[NSValue valueWithCGPoint:topCoor]];
+        if (bottomTile) [roadCoors addObject:[NSValue valueWithCGPoint:bottomCoor]];
+        if (rightTile) [roadCoors addObject:[NSValue valueWithCGPoint:rightCoor]];
+        if (leftTile) [roadCoors addObject:[NSValue valueWithCGPoint:leftCoor]];
+        if ([roadCoors count] == 1) {
+            CGPoint coor = [[roadCoors lastObject] CGPointValue];
+            CGPoint heading = CGPointMake(coor.x - coordinate.x, coor.y - coordinate.y);
+            if (heading.y == 1) radians = 0;
+            else if (heading.y == -1) radians = M_PI;
+            else if (heading.x == 1) radians = -M_PI/2.0;
+            else if (heading.x == -1) radians = M_PI/2.0;
+        } else if ([roadCoors count] == 0) {
+            radians = 0;
+        } else {    // multiple roads, just pick the first one
+            // TODO: add a heading picker
+            CGPoint coor = [roadCoors[0] CGPointValue];
+            CGPoint heading = CGPointMake(coor.x - coordinate.x, coor.y - coordinate.y);
+            if (heading.y == 1) radians = 0;
+            else if (heading.y == -1) radians = M_PI;
+            else if (heading.x == 1) radians = -M_PI/2.0;
+            else if (heading.x == -1) radians = M_PI/2.0;
+        }
+        
+        towerSprite.zRotation = radians;
+        [sknode addChild:towerSprite];
+        
+        float radius = 100;
+        SKShapeNode *circle = [SKShapeNode shapeNodeWithCircleOfRadius:radius];
+        circle.strokeColor = [UIColor redColor];
+        //        [sknode addChild:circle];
+        
+        //        SKShapeNode *rectangle = [SKShapeNode shapeNodeWithRect:CGRectMake(-32, 32, 64, radius)];
+        //        rectangle.strokeColor = [UIColor redColor];
+        //        [sknode addChild:rectangle];
+        
+        sknode.physicsBody = [SKPhysicsBody bodyWithCircleOfRadius:radius];
+        sknode.physicsBody.dynamic = NO;
+        sknode.physicsBody.categoryBitMask = 1;
+        sknode.physicsBody.contactTestBitMask = 2;
+        sknode.physicsBody.collisionBitMask = 0;
+        
+        SKSpriteNode *bulletSprite = [SKSpriteNode spriteNodeWithColor:[UIColor blackColor] size:CGSizeMake(10, 10)];
+        
+        VisualComponent *visualComponent = [[VisualComponent alloc] initWithScene:self sprite:sknode bulletSprite:bulletSprite coordinate:coordinate];
+        [towerEntity addComponent:visualComponent];
+        
+        FiringComponent *firingComponent = [[FiringComponent alloc] initWithSprite:towerSprite damage:3 fireRate:0.5];
+        [towerEntity addComponent:firingComponent];
+        
+        [self addChild:visualComponent.sprite];
+        
+        // remove node from grid
+        [self.openTowersGraph removeNodes:@[node]];
+        
+        [self.towers addObject:towerEntity];
+    } else {
+        NSLog(@"cannot place tower here: {%d, %d}", coordinate.x, coordinate.y);
+    }
 }
 
 - (SKSpriteNode *)healthBarForEntity:(GKEntity *)entity {
@@ -221,89 +328,6 @@
     }
 }
 
-- (void)createTowerAtCoordinate:(vector_int2)coordinate {
-    // is the tile eligible for a tower?
-    GKGridGraphNode *node = [self.openTowersGraph nodeAtGridPosition:coordinate];
-    if (node) {
-        GKEntity *towerEntity = [GKEntity entity];
-        
-        SKNode *sknode = [SKNode node];
-        sknode.name = @"Tower";
-        sknode.position = [self positionForTileCoordinate:CGPointMake(coordinate.x, coordinate.y)];
-        
-        SKSpriteNode *towerSprite = [SKSpriteNode spriteNodeWithImageNamed:@"archer"];
-        // let's determine direction tower should be facing
-        // check all sides, if 1 side is a road, then that should be the direction
-        float radians = 0;
-        CGPoint topCoor = CGPointMake(coordinate.x, coordinate.y + 1);
-        CGPoint bottomCoor = CGPointMake(coordinate.x, coordinate.y - 1);
-        CGPoint rightCoor = CGPointMake(coordinate.x + 1, coordinate.y);
-        CGPoint leftCoor = CGPointMake(coordinate.x - 1, coordinate.y);
-        SKTileDefinition *topTile = [self.road tileDefinitionAtColumn:topCoor.x row:topCoor.y];
-        SKTileDefinition *bottomTile = [self.road tileDefinitionAtColumn:bottomCoor.x row:bottomCoor.y];
-        SKTileDefinition *rightTile = [self.road tileDefinitionAtColumn:rightCoor.x row:rightCoor.y];
-        SKTileDefinition *leftTile = [self.road tileDefinitionAtColumn:leftCoor.x row:leftCoor.y];
-        NSMutableArray *roadCoors = [NSMutableArray array];
-        if (topTile) [roadCoors addObject:[NSValue valueWithCGPoint:topCoor]];
-        if (bottomTile) [roadCoors addObject:[NSValue valueWithCGPoint:bottomCoor]];
-        if (rightTile) [roadCoors addObject:[NSValue valueWithCGPoint:rightCoor]];
-        if (leftTile) [roadCoors addObject:[NSValue valueWithCGPoint:leftCoor]];
-        if ([roadCoors count] == 1) {
-            CGPoint coor = [[roadCoors lastObject] CGPointValue];
-            CGPoint heading = CGPointMake(coor.x - coordinate.x, coor.y - coordinate.y);
-            if (heading.y == 1) radians = 0;
-            else if (heading.y == -1) radians = M_PI;
-            else if (heading.x == 1) radians = -M_PI/2.0;
-            else if (heading.x == -1) radians = M_PI/2.0;
-        } else if ([roadCoors count] == 0) {
-            radians = 0;
-        } else {    // multiple roads, just pick the first one
-            // TODO: add a heading picker
-            CGPoint coor = [roadCoors[0] CGPointValue];
-            CGPoint heading = CGPointMake(coor.x - coordinate.x, coor.y - coordinate.y);
-            if (heading.y == 1) radians = 0;
-            else if (heading.y == -1) radians = M_PI;
-            else if (heading.x == 1) radians = -M_PI/2.0;
-            else if (heading.x == -1) radians = M_PI/2.0;
-        }
-        
-        towerSprite.zRotation = radians;
-        [sknode addChild:towerSprite];
-        
-        float radius = 100;
-        SKShapeNode *circle = [SKShapeNode shapeNodeWithCircleOfRadius:radius];
-        circle.strokeColor = [UIColor redColor];
-//        [sknode addChild:circle];
-        
-//        SKShapeNode *rectangle = [SKShapeNode shapeNodeWithRect:CGRectMake(-32, 32, 64, radius)];
-//        rectangle.strokeColor = [UIColor redColor];
-//        [sknode addChild:rectangle];
-        
-        sknode.physicsBody = [SKPhysicsBody bodyWithCircleOfRadius:radius];
-        sknode.physicsBody.dynamic = NO;
-        sknode.physicsBody.categoryBitMask = 1;
-        sknode.physicsBody.contactTestBitMask = 2;
-        sknode.physicsBody.collisionBitMask = 0;
-        
-        SKSpriteNode *bulletSprite = [SKSpriteNode spriteNodeWithColor:[UIColor blackColor] size:CGSizeMake(10, 10)];
-        
-        VisualComponent *visualComponent = [[VisualComponent alloc] initWithScene:self sprite:sknode bulletSprite:bulletSprite coordinate:coordinate];
-        [towerEntity addComponent:visualComponent];
-        
-        FiringComponent *firingComponent = [[FiringComponent alloc] initWithSprite:towerSprite damage:3 fireRate:0.5];
-        [towerEntity addComponent:firingComponent];
-        
-        [self addChild:visualComponent.sprite];
-        
-        // remove node from grid
-        [self.openTowersGraph removeNodes:@[node]];
-        
-        [self.towers addObject:towerEntity];
-    } else {
-        NSLog(@"cannot place tower here: {%d, %d}", coordinate.x, coordinate.y);
-    }
-}
-
 - (GKEntity *)towerForSprite:(SKNode *)sprite {
     for (GKEntity *tower in self.towers) {
         VisualComponent *vc = (VisualComponent *)[tower componentForClass:[VisualComponent class]];
@@ -351,28 +375,14 @@
     }
 }
 
-- (void)removeEnemy:(GKEntity *)enemy {
-    int index = 0;
-    SKNode *node = nil;
-    for (GKEntity *e in self.enemies) {
-        if (e == enemy) {
-            node = [(MovementComponent *)[e componentForClass:[MovementComponent class]] sprite];
-            break;
-        }
-        index++;
-    }
-    
-    if (node) {
-        [node removeAllActions];
-        
-        [self.enemies removeObjectAtIndex:index];
-        
-        [node removeFromParent];
-    }
-    
-    if ([self.enemies count] <= 0) {
-        [self addChild:[self playButtonNode]];
-    }
+#pragma mark - SKPhysicsContactDelegate
+
+- (void)didBeginContact:(SKPhysicsContact *)contact {
+    [self contactWithNodeA:contact.bodyA.node nodeB:contact.bodyB.node entered:YES];
+}
+
+- (void)didEndContact:(SKPhysicsContact *)contact {
+    [self contactWithNodeA:contact.bodyA.node nodeB:contact.bodyB.node entered:NO];
 }
 
 - (void)contactWithNodeA:(SKNode *)nodeA nodeB:(SKNode *)nodeB entered:(BOOL)entered {
@@ -395,16 +405,6 @@
     }
 }
 
-#pragma mark - SKPhysicsContactDelegate
-
-- (void)didBeginContact:(SKPhysicsContact *)contact {
-    [self contactWithNodeA:contact.bodyA.node nodeB:contact.bodyB.node entered:YES];
-}
-
-- (void)didEndContact:(SKPhysicsContact *)contact {
-    [self contactWithNodeA:contact.bodyA.node nodeB:contact.bodyB.node entered:NO];
-}
-
 #pragma mark - UITouch events
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
@@ -415,7 +415,7 @@
     NSLog(@"touched: %@", NSStringFromCGPoint(tilePosition));
     
     if ([node.name isEqualToString:@"playButtonNode"]) {
-        [self createEnemies];
+        [self createEnemiesAtSpawnPoint:self.spawnNode.gridPosition moveToDestination:self.endNode.gridPosition];
         
         [node removeFromParent];
     }
