@@ -20,6 +20,7 @@
         _sprite = sprite;
         _bulletSprite = bulletSprite;
         _coordinate = coordinate;
+        _heading = CGPointZero;
     }
     
     return self;

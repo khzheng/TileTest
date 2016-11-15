@@ -179,6 +179,7 @@
         // let's determine direction tower should be facing
         // check all sides, if 1 side is a road, then that should be the direction
         float radians = 0;
+        CGPoint heading = CGPointZero;
         CGPoint topCoor = CGPointMake(coordinate.x, coordinate.y + 1);
         CGPoint bottomCoor = CGPointMake(coordinate.x, coordinate.y - 1);
         CGPoint rightCoor = CGPointMake(coordinate.x + 1, coordinate.y);
@@ -194,7 +195,7 @@
         if (leftTile) [roadCoors addObject:[NSValue valueWithCGPoint:leftCoor]];
         if ([roadCoors count] == 1) {
             CGPoint coor = [[roadCoors lastObject] CGPointValue];
-            CGPoint heading = CGPointMake(coor.x - coordinate.x, coor.y - coordinate.y);
+            heading = CGPointMake(coor.x - coordinate.x, coor.y - coordinate.y);
             if (heading.y == 1) radians = 0;
             else if (heading.y == -1) radians = M_PI;
             else if (heading.x == 1) radians = -M_PI/2.0;
@@ -204,7 +205,7 @@
         } else {    // multiple roads, just pick the first one
             // TODO: add a heading picker
             CGPoint coor = [roadCoors[0] CGPointValue];
-            CGPoint heading = CGPointMake(coor.x - coordinate.x, coor.y - coordinate.y);
+            heading = CGPointMake(coor.x - coordinate.x, coor.y - coordinate.y);
             if (heading.y == 1) radians = 0;
             else if (heading.y == -1) radians = M_PI;
             else if (heading.x == 1) radians = -M_PI/2.0;
@@ -232,9 +233,11 @@
         SKSpriteNode *bulletSprite = [SKSpriteNode spriteNodeWithColor:[UIColor blackColor] size:CGSizeMake(10, 10)];
         
         VisualComponent *visualComponent = [[VisualComponent alloc] initWithScene:self sprite:sknode bulletSprite:bulletSprite coordinate:coordinate];
+        visualComponent.heading = heading;
         [towerEntity addComponent:visualComponent];
         
-        FiringComponent *firingComponent = [[FiringComponent alloc] initWithSprite:towerSprite damage:3 fireRate:0.5];
+        FiringComponent *firingComponent = [[FiringComponent alloc] initWithSprite:towerSprite damage:3 fireRate:1];
+        firingComponent.heading = heading;
         [towerEntity addComponent:firingComponent];
         
         [self addChild:visualComponent.sprite];
@@ -336,6 +339,27 @@
     }
     
     return nil;
+}
+
+- (void)fireBulletFromEntity:(GKEntity *)entity angle:(CGFloat)angle {
+    VisualComponent *entityVc = (VisualComponent *)[entity componentForClass:[VisualComponent class]];
+    CGPoint entityPosition = entityVc.sprite.position;
+    
+    SKSpriteNode *bulletSprite = entityVc.bulletSprite;
+    SKSpriteNode *bulletSpriteCopy = [bulletSprite copy];
+    bulletSpriteCopy.position = entityPosition;
+    bulletSpriteCopy.zPosition = 1;    // position bullet behind tower?
+    //    bulletSpriteCopy.zRotation = angle;
+    [self addChild:bulletSpriteCopy];
+    
+    float range = 400.0;
+    float destX = range * sin((angle * M_PI)/180.0);
+    float destY = range * cos((angle * M_PI)/180.0);
+    
+    SKAction *trajAction = [SKAction moveTo:CGPointMake(entityPosition.x + destX, entityPosition.y + destY) duration:0.2];
+    [bulletSpriteCopy runAction:trajAction completion:^{
+        [self removeChildrenInArray:@[bulletSpriteCopy]];
+    }];
 }
 
 - (void)fireBulletFromEntity:(GKEntity *)entity towardsEnemy:(GKEntity *)enemy angle:(float)angle {

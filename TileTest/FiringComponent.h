@@ -14,6 +14,7 @@
 @property (nonatomic, strong) SKSpriteNode *sprite;
 @property (nonatomic, assign) float dmgPerBullet;
 @property (nonatomic, assign) float fireRate;
+@property (nonatomic, assign) CGPoint heading;
 
 - (instancetype)initWithSprite:(SKSpriteNode *)sprite damage:(float)damage fireRate:(float)fireRate;
 - (void)enemyEnteredTowerRange:(GKEntity *)enemy;

@@ -16,6 +16,7 @@
 @property (nonatomic, strong) NSMutableArray *enemiesInRange;
 @property (nonatomic, strong) GKEntity *targetEnemy;
 @property (nonatomic, strong) NSTimer *attackTimer;
+@property (nonatomic, assign) BOOL isAttacking;
 
 @end
 
@@ -27,6 +28,8 @@
         _sprite = sprite;
         _dmgPerBullet = damage;
         _fireRate = fireRate;
+        _heading = CGPointZero;
+        _isAttacking = NO;
         
         _enemiesInRange = [NSMutableArray array];
     }
@@ -46,6 +49,21 @@
     }
 }
 
+- (void)startAttacking {
+    if (self.isAttacking)
+        return;
+    
+    self.isAttacking = YES;
+    
+    if (self.attackTimer) {
+        [self.attackTimer invalidate];
+        self.attackTimer = nil;
+    }
+    
+    [self attack];
+    self.attackTimer = [NSTimer scheduledTimerWithTimeInterval:self.fireRate target:self selector:@selector(attack) userInfo:nil repeats:YES];
+}
+
 - (void)startAttackingTargetEnemy {
     if (self.attackTimer) {
         [self.attackTimer invalidate];
@@ -60,6 +78,8 @@
 - (void)stopAttacking {
     [self.attackTimer invalidate];
     self.attackTimer = nil;
+    
+    self.isAttacking = NO;
 }
 
 - (void)attackTargetEnemy {
@@ -85,12 +105,25 @@
     }
 }
 
-- (void)enemyInRange:(GKEntity *)enemy {
-    if (self.targetEnemy != enemy) {
-        self.targetEnemy = enemy;
-        
-        [self startAttackingTargetEnemy];
+- (void)attack {
+    float angle = 0;
+    if (self.heading.x == 1) angle = 90;
+    else if (self.heading.x == -1) angle = 270;
+    else if (self.heading.y == -1) angle = 180;
+    
+    Level1Scene *scene = (Level1Scene *)self.sprite.scene;
+    if (scene) {
+        [scene fireBulletFromEntity:self.entity angle:angle];
     }
+}
+
+- (void)enemyInRange:(GKEntity *)enemy {
+    [self startAttacking];
+//    if (self.targetEnemy != enemy) {
+//        self.targetEnemy = enemy;
+//        
+//        [self startAttackingTargetEnemy];
+//    }
 }
 
 - (void)removeEnemy:(GKEntity *)enemy {

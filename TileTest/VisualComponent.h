@@ -16,6 +16,7 @@
 @property (nonatomic, strong) SKNode *sprite;
 @property (nonatomic, strong) SKSpriteNode *bulletSprite;
 @property (nonatomic, assign) vector_int2 coordinate;
+@property (nonatomic, assign) CGPoint heading;
 
 - (instancetype)initWithScene:(Level1Scene *)scene
                        sprite:(SKNode *)sprite
